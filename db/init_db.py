@@ -3,9 +3,12 @@ from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 from schema import Base, User, Group, Event  # assuming your models are in models.py
 import hashlib
-
+import json
 # --- Configuration ---
-DB_URL = "sqlite:///app.db"
+
+with open("./vars/dev/vars.json") as file:
+    config_data = json.load(file)
+DB_URL = config_data["DB_URL"]
 
 
 def hash_password(password: str) -> str:
@@ -62,7 +65,7 @@ def init_db(seed: bool = True):
         event = Event(
             event_name="Launch Party",
             description="Official launch event for our platform.",
-            event_time=datetime.strptime('31/01/2026 09:45:00','%d/%m/%y %H:%M:%S')
+            event_time=datetime.strptime('31/01/2026 09:45:00','%d/%m/%Y %H:%M:%S')
         )
 
         # Add relationships
