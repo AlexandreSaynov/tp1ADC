@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from datetime import datetime
 
 from schema import User, Group, UsersInGroups, Event, UsersAttendingEvents
-from init_db import DB_URL  # Reuse DB URL from init_db
+from db.init_db import DB_URL  # Reuse DB URL from init_db
 
 engine = create_engine(DB_URL, echo=False)
 Session = sessionmaker(bind=engine)
