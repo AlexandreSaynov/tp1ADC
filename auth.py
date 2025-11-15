@@ -1,62 +1,47 @@
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-from datetime import datetime
-from schema import User
 import hashlib
+from db.db_controller import DBController
 
-DB_URL = "sqlite:///app.db"
-engine = create_engine(DB_URL, echo=False)
-Session = sessionmaker(bind=engine)
 
 def hash_password(password: str) -> str:
-    """Gera hash SHA256 simples (não recomendado em produção)."""
     return hashlib.sha256(password.encode('utf-8')).hexdigest()
+
 
 class AuthService:
     def __init__(self):
-        self.session = Session()
+        self.db = DBController()
 
-    def register_user(self, username: str, email: str, password: str, access_level: str = "user") -> bool:
-        first_user = self.session.query(User).first()
+    def register_user(self, username: str, email: str, password: str, access_level="user"):
+        if len(self.db.get_all_users()) == 0:
+            access_level = "root"
+            print("⚠ Creating first user as ROOT")
 
-        if not first_user:
-            access_level = "admin"
-            print("Primeiro utilizador criado como RootAdmin.")
-
-        if self.session.query(User).filter_by(username=username).first():
-            print("Nome de utilizador já existente.")
-            return False
-        if self.session.query(User).filter_by(email=email).first():
-            print("Email já existente.")
-            return False
-
-        new_user = User(
+        ok, result = self.db.add_user(
             username=username,
             email=email,
             password_hash=hash_password(password),
-            access_level=access_level,
-            created_at=datetime.now()
+            access_level=access_level
         )
 
-        self.session.add(new_user)
-        self.session.commit()
-        print(f"Utilizador '{username}' criado com sucesso (Role: {access_level}).")
+        if not ok:
+            print(result)
+            return False
+
+        print(f"User '{username}' registered successfully.")
         return True
 
     def login(self, username: str, password: str):
-        user = self.session.query(User).filter_by(username=username).first()
+        user = self.db.get_user_by_username(username)
 
         if not user:
-            print("Utilizador não encontrado.")
+            print("User not found.")
             return None
 
         if user.password_hash != hash_password(password):
-            print("Palavra-passe incorreta.")
+            print("Incorrect password.")
             return None
 
-        print(f"Login efetuado com sucesso. Bem-vindo, {user.username} ({user.access_level})!")
+        print(f"Welcome {user.username}! ({user.access_level})")
         return user
 
-
     def close(self):
-        self.session.close()
+        self.db.close()
