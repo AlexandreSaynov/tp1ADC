@@ -5,9 +5,8 @@ from sqlalchemy import create_engine
 from datetime import datetime
 
 from schema import User, Group, UsersInGroups, Event, UsersAttendingEvents
-from init_db import DB_URL  # Reuse DB URL from init_db
 
-engine = create_engine(DB_URL, echo=False)
+engine = create_engine("sqlite:///app.db", echo=False)
 Session = sessionmaker(bind=engine)
 
 
@@ -41,6 +40,7 @@ class DBController:
         return True, user
 
     def get_user_by_username(self, username: str):
+        print(self.session.query(User).filter_by(username=username).first())
         return self.session.query(User).filter_by(username=username).first()
 
     def get_user_by_email(self, email: str):

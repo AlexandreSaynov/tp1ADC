@@ -1,19 +1,17 @@
 from db.init_db import init_db
-from auth import AuthService
+from app.auth import AuthService
 from db.db_controller import DBController
-#from menus import menu_loop
+from app.menus import menu_loop
 
 
 def main():
     init_db(seed=False)
 
-    auth = AuthService()
     db = DBController()
-
+    auth = AuthService(db)
+    
     try:
-        #To be developed
-        #menu_loop(auth, db)
-        print("menu")
+        menu_loop(auth, db)
     finally:
         auth.close()
         db.close()
