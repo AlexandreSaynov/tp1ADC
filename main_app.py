@@ -15,7 +15,5 @@ def main():
     finally:
         auth.close()
         db.close()
-
-
 if __name__ == "__main__":
     main()

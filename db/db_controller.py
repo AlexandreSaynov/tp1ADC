@@ -3,10 +3,10 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from datetime import datetime
-
 from schema import User, Group, UsersInGroups, Event, UsersAttendingEvents
+from db.init_db import DB_URL
 
-engine = create_engine("sqlite:///app.db", echo=False)
+engine = create_engine(DB_URL, echo=False)
 Session = sessionmaker(bind=engine)
 
 
