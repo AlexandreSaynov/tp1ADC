@@ -7,9 +7,9 @@ from app.menus import menu_loop
 def main():
     init_db(seed=False)
 
-    auth = AuthService()
     db = DBController()
-
+    auth = AuthService(db)
+    
     try:
         menu_loop(auth, db)
     finally:

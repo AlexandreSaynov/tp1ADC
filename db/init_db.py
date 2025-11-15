@@ -62,7 +62,7 @@ def init_db(seed: bool = True):
         event = Event(
             event_name="Launch Party",
             description="Official launch event for our platform.",
-            event_time=datetime.strptime('31/01/2026 09:45:00','%d/%m/%y %H:%M:%S')
+            event_time=datetime.strptime('31/01/26 09:45:00','%d/%m/%y %H:%M:%S')
         )
 
         # Add relationships
