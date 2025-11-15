@@ -3,6 +3,10 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
+import json
+with open("./vars/dev/vars.json") as file:
+    config_data = json.load(file)
+DB_URL = config_data["DB_URL"]
 
 Base = declarative_base()
 
@@ -59,5 +63,5 @@ class UsersAttendingEvents(Base):
 
 
 # --- Create SQLite database ---
-engine = create_engine("sqlite:///app.db", echo=True)
+engine = create_engine(DB_URL, echo=True)
 Base.metadata.create_all(engine)
