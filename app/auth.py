@@ -7,8 +7,8 @@ def hash_password(password: str) -> str:
 
 
 class AuthService:
-    def __init__(self):
-        self.db = DBController()
+    def __init__(self,db_controller):
+        self.db = db_controller
 
     def register_user(self, username: str, email: str, password: str, access_level="user"):
         if len(self.db.get_all_users()) == 0:

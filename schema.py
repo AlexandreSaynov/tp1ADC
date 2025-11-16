@@ -3,6 +3,10 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
+import json
+with open("./vars/dev/vars.json") as file:
+    config_data = json.load(file)
+DB_URL = config_data["DB_URL"]
 
 Base = declarative_base()
 
@@ -17,7 +21,7 @@ class User(Base):
     access_level = Column(String, nullable=False)
 
     __table_args__ = (
-        CheckConstraint("access_level IN ('admin', 'user', 'moderator')"),
+        CheckConstraint("access_level IN ('root','admin', 'user', 'moderator')"),
     )
 
     groups = relationship('Group', secondary='users_in_groups', back_populates='users')
@@ -47,6 +51,7 @@ class Event(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     event_name = Column(String)
     description = Column(String)
+    event_time = Column(DateTime, default=datetime.now())
 
     users = relationship('User', secondary='users_attending_events', back_populates='events')
 
@@ -59,5 +64,5 @@ class UsersAttendingEvents(Base):
 
 
 # --- Create SQLite database ---
-engine = create_engine("sqlite:///app.db", echo=True)
+engine = create_engine(DB_URL, echo=True)
 Base.metadata.create_all(engine)
