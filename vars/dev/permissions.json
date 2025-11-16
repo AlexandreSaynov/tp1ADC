@@ -4,14 +4,14 @@
             "name": "root",
             "permissions": [
                 "user.create",
-                "user.view"
-
+                "user.view",
+                "group.manage",
+                "group.view"
             ]
         },
         {
             "name": "user",
             "permissions": [
-                "user.view"
             ]
         }
     ]
