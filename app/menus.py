@@ -1,20 +1,29 @@
 # menus.py
 
 from datetime import datetime
+import os
 
 
-def print_menu():
-    print("\n============ MENU ============")
-    print("1. Register User")
-    print("2. Login")
-    print("3. Create Group")
-    print("4. Add User to Group")
-    print("5. List Users in Group")
-    print("6. List All Users")
-    print("7. Create Event")
-    print("8. Add User to Event")
-    print("9. Exit")
-    print("==============================\n")
+def print_menu(logged_user):
+    if logged_user != None:
+        print(f"Logged in as: {logged_user.username}")
+        print("============ MENU ============")
+        print("1. Register User")
+        print("2. Login")
+        print("3. Create Group")
+        print("4. Add User to Group")
+        print("5. List Users in Group")
+        print("6. List All Users")
+        print("7. Create Event")
+        print("8. Add User to Event")
+        print("9. Exit")
+        print("==============================\n")
+    else:
+        print("\n============ MENU ============")
+        print("1. Register User")
+        print("2. Login")
+        print("9. Exit")
+        print("==============================\n")
 
 
 def handle_register(auth):
@@ -94,36 +103,39 @@ def menu_loop(auth, db):
     logged_user = None
 
     while True:
-        print_menu()
+        os.system("cls")
+        print_menu(logged_user)
         choice = input("Choose an option: ").strip()
-
-        if choice == "1":
-            handle_register(auth)
-
-        elif choice == "2":
-            logged_user = handle_login(auth)
-
-        elif choice == "3":
-            handle_create_group(db)
-
-        elif choice == "4":
-            handle_add_user_to_group(db)
-
-        elif choice == "5":
-            handle_list_users_in_group(db)
-
-        elif choice == "6":
-            handle_list_all_users(db)
-
-        elif choice == "7":
-            handle_create_event(db)
-
-        elif choice == "8":
-            handle_add_user_to_event(db)
-
-        elif choice == "9":
-            print("Exiting application...")
-            return  # exit loop
-
-        else:
-            print("Invalid option.")
+        if(logged_user!=None): # logged in menu
+            if choice == "1":
+                handle_register(auth)
+            elif choice == "2":
+                logged_user = handle_login(auth) # change to logout
+            elif choice == "3":
+                handle_create_group(db)
+            elif choice == "4":
+                handle_add_user_to_group(db)
+            elif choice == "5":
+                handle_list_users_in_group(db)
+            elif choice == "6":
+                handle_list_all_users(db)
+            elif choice == "7":
+                handle_create_event(db)
+            elif choice == "8":
+                handle_add_user_to_event(db)
+            elif choice == "9":
+                print("Exiting application...")
+                return  # exit loop
+            else:
+                print("Invalid option.")
+        else: # logged out menu
+            if choice == "1":
+                handle_register(auth)
+            elif choice == "2":
+                logged_user = handle_login(auth)
+            elif choice == "9":
+                print("Exiting application...")
+                return
+            else:
+                print("Invalid option")
+            
