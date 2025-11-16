@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
-from schema import Base, User, Group, Event  # assuming your models are in models.py
+from .schema import Base, User, Group, Event  # assuming your models are in models.py
 import hashlib
 import json
 # --- Configuration ---
