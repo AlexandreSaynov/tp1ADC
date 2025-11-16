@@ -1,0 +1,18 @@
+{
+    "roles": [
+        {
+            "name": "root",
+            "permissions": [
+                "user.create",
+                "user.view"
+
+            ]
+        },
+        {
+            "name": "user",
+            "permissions": [
+                "user.view"
+            ]
+        }
+    ]
+}
