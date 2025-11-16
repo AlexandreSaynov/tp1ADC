@@ -1,30 +1,59 @@
 # menus.py
-
-from datetime import datetime
 import os
+from datetime import datetime
 
 
-def print_menu(logged_user):
-    if logged_user != None:
-        print(f"Logged in as: {logged_user.username}")
-        print("============ MENU ============")
-        print("1. Register User")
-        print("2. Login")
-        print("3. Create Group")
-        print("4. Add User to Group")
-        print("5. List Users in Group")
-        print("6. List All Users")
-        print("7. Create Event")
-        print("8. Add User to Event")
-        print("9. Exit")
-        print("==============================\n")
-    else:
-        print("\n============ MENU ============")
-        print("1. Register User")
-        print("2. Login")
-        print("9. Exit")
-        print("==============================\n")
+# ---------------------------------------------------------
+# MENU DEFINITIONS (dynamic pages)
+# ---------------------------------------------------------
+def build_menu(logged_user, permissions):
+    """
+    Returns a list of menu entries based on the user's permissions.
+    """
+    if logged_user is None:
+        return [
+            ("1", "Register User", None),
+            ("2", "Login", None),
+            ("9", "Exit", None)
+        ]
+    
+    items = []
 
+    add = items.append
+
+    add(("1", "Register User",  "user.create"))
+    add(("2", "Logout",         None))
+    add(("3", "Create Group",   "group.manage"))
+    add(("4", "Add User to Group", "group.manage"))
+    add(("5", "List Users in Group", "group.view"))
+    add(("6", "List All Users", "user.view"))
+    add(("7", "Create Event",   "event.manage"))
+    add(("8", "Add User to Event", "event.manage"))
+    add(("9", "Exit", None))
+
+    final_menu = []
+    for opt, label, perm in items:
+        if perm is None or permissions.has_permission(logged_user, perm):
+            final_menu.append((opt, label, perm))
+
+    return final_menu
+
+
+def print_dynamic_menu(logged_user, permissions):
+    menu = build_menu(logged_user, permissions)
+
+    if logged_user:
+        print(f"Logged in as: {logged_user.username} ({logged_user.access_level})")
+
+    print("============== MENU ==============")
+    for opt, label, _ in menu:
+        print(f"{opt}. {label}")
+    print("==================================\n")
+
+
+# ---------------------------------------------------------
+# HANDLERS
+# ---------------------------------------------------------
 
 def handle_register(auth):
     username = input("Username: ").strip()
@@ -37,6 +66,11 @@ def handle_login(auth):
     username = input("Username: ").strip()
     password = input("Password: ").strip()
     return auth.login(username, password)
+
+
+def handle_logout():
+    print("Logging out...")
+    return None
 
 
 def handle_create_group(db):
@@ -56,12 +90,8 @@ def handle_list_users_in_group(db):
     group_id = int(input("Group ID: "))
     users = db.get_users_from_group(group_id)
 
-    if users is None:
-        print("Group not found.")
-        return
-
-    if len(users) == 0:
-        print("No users in this group.")
+    if not users:
+        print("No users or group not found.")
         return
 
     print(f"Users in group {group_id}:")
@@ -71,7 +101,6 @@ def handle_list_users_in_group(db):
 
 def handle_list_all_users(db):
     users = db.get_all_users()
-    print("\nRegistered Users:")
     for u in users:
         print(f"[{u.id}] {u.username} | {u.email} | {u.access_level}")
 
@@ -98,44 +127,43 @@ def handle_add_user_to_event(db):
     print(msg)
 
 
-def menu_loop(auth, db):
-    """Handles the main menu loop and user interactions."""
+# ---------------------------------------------------------
+# MAIN LOOP
+# ---------------------------------------------------------
+def menu_loop(auth, db, permissions):
     logged_user = None
 
     while True:
-        os.system("cls")
-        print_menu(logged_user)
+
+        menu = build_menu(logged_user, permissions)
+        print_dynamic_menu(logged_user, permissions)
+
         choice = input("Choose an option: ").strip()
-        if(logged_user!=None): # logged in menu
-            if choice == "1":
-                handle_register(auth)
-            elif choice == "2":
-                logged_user = handle_login(auth) # change to logout
-            elif choice == "3":
-                handle_create_group(db)
-            elif choice == "4":
-                handle_add_user_to_group(db)
-            elif choice == "5":
-                handle_list_users_in_group(db)
-            elif choice == "6":
-                handle_list_all_users(db)
-            elif choice == "7":
-                handle_create_event(db)
-            elif choice == "8":
-                handle_add_user_to_event(db)
-            elif choice == "9":
-                print("Exiting application...")
-                return  # exit loop
+
+        valid_options = {opt for opt, _, _ in menu}
+        if choice not in valid_options:
+            print("Invalid option.")
+            continue
+
+        if choice == "1":
+            handle_register(auth)
+        elif choice == "2":
+            if logged_user:
+                logged_user = handle_logout()
             else:
-                print("Invalid option.")
-        else: # logged out menu
-            if choice == "1":
-                handle_register(auth)
-            elif choice == "2":
                 logged_user = handle_login(auth)
-            elif choice == "9":
-                print("Exiting application...")
-                return
-            else:
-                print("Invalid option")
-            
+        elif choice == "3":
+            handle_create_group(db)
+        elif choice == "4":
+            handle_add_user_to_group(db)
+        elif choice == "5":
+            handle_list_users_in_group(db)
+        elif choice == "6":
+            handle_list_all_users(db)
+        elif choice == "7":
+            handle_create_event(db)
+        elif choice == "8":
+            handle_add_user_to_event(db)
+        elif choice == "9":
+            print("Exiting application...")
+            return
