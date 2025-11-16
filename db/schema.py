@@ -1,14 +1,12 @@
-from sqlalchemy import (
-    create_engine, Column, Integer, String, DateTime, ForeignKey, CheckConstraint
-)
+from sqlalchemy import (create_engine, Column, Integer, String, DateTime, ForeignKey, CheckConstraint)
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
 import json
+Base = declarative_base()
 with open("./vars/dev/vars.json") as file:
     config_data = json.load(file)
 DB_URL = config_data["DB_URL"]
 
-Base = declarative_base()
 
 class User(Base):
     __tablename__ = 'users'
@@ -51,7 +49,7 @@ class Event(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     event_name = Column(String)
     description = Column(String)
-    event_time = Column(DateTime, default=datetime.now())
+    event_time = Column(DateTime, default=datetime.now)
 
     users = relationship('User', secondary='users_attending_events', back_populates='events')
 
