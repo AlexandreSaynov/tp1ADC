@@ -1,10 +1,8 @@
-# db_controller.py
-
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from datetime import datetime
-from schema import User, Group, UsersInGroups, Event, UsersAttendingEvents
-from db.init_db import DB_URL
+from .schema import User, Group, UsersInGroups, Event, UsersAttendingEvents
+from .init_db import DB_URL
 
 engine = create_engine(DB_URL, echo=False)
 Session = sessionmaker(bind=engine)
@@ -127,6 +125,28 @@ class DBController:
         self.session.commit()
 
         return True, "User added to event."
+    
+    def update_user(self, user_id: int, updates: dict):
+        user = self.get_user_by_id(user_id)
+        if not user:
+            return False, "User not found."
+        
+        if "username" in updates:
+            if self.session.query(User).filter_by(username=updates["username"]).first():
+                return False, "Username already exists."
+        if "email" in updates:
+            if self.session.query(User).filter_by(email=updates["email"]).first():
+                return False, "Email already exists."
+
+        for key, value in updates.items():
+            if hasattr(user, key):
+                setattr(user, key, value)
+            else:
+                return False, f"Invalid field: {key}"
+
+        self.session.commit()
+        return True, user
+
 
     def close(self):
         self.session.close()

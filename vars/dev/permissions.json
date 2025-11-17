@@ -1,0 +1,18 @@
+{
+    "roles": [
+        {
+            "name": "root",
+            "permissions": [
+                "user.create",
+                "user.view",
+                "group.manage",
+                "group.view",
+                "role.create"
+            ]
+        },
+        {
+            "name": "user",
+            "permissions": []
+        }
+    ]
+}
