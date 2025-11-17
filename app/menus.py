@@ -2,15 +2,10 @@ from datetime import datetime
 import os
 import json
 
-ALL_PERMISSIONS = [
-    "user.create",
-    "user.view",
-    "group.manage",
-    "group.view",
-    "role.create"
-]
-
-ROLES_JSON_FILE = "vars/dev/permissions.json"
+with open("./vars/dev/vars.json") as file:
+    config_data = json.load(file)
+ALL_PERMISSIONS = config_data["ALL_PERMISSIONS"]
+ROLES_JSON_FILE = config_data["ROLES_JSON_FILE"]
 
 # ---------------------------------------------------------
 # MENU DEFINITIONS
