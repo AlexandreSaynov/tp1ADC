@@ -26,9 +26,11 @@ def build_menu(logged_user, permissions):
     add(("3", "Create Group", "group.manage"))
     add(("4", "View All Groups", "group.view"))
     add(("5", "View Profile", None))
-    add(("6", "Logout", None))
-    add(("7", "Create New Role", "role.create"))
-    add(("9", "Exit", None))
+    add(("6", "Create New Role", "role.create"))
+    add(("8", "Create New Event", "event.create"))
+    add(("9", "View my Events", None))
+    add(("9", "Logout", None))
+    add(("0", "Exit", None))
 
     final = []
     for opt, label, perm in menu:
@@ -197,6 +199,60 @@ def handle_create_role(permissions, logged_user):
 
     print(f"Role '{role_name}' created with permissions: {new_perms}")
 
+def handle_create_event(db, logged_user, permissions):
+    if not permissions.has_permission(logged_user, "event.create"):
+        print("You do not have permission to create events.")
+        return
+
+    print("\n=== Create New Event ===")
+
+    name = input("Event name: ").strip()
+    description = input("Description: ").strip()
+    date_str = input("Event date (YYYY-MM-DD HH:MM): ").strip()
+
+    try:
+        event_date = datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+    except ValueError:
+        print("❌ Invalid date format.")
+        return
+
+    users = db.get_all_users()
+    print("\nSelect attendees (comma-separated IDs):")
+    for u in users:
+        print(f"[{u.id}] {u.username} | {u.email} | {u.access_level}")
+
+    selected = input("Attendees: ").strip()
+    try:
+        attendee_ids = [int(x) for x in selected.split(",")]
+    except ValueError:
+        print("Invalid attendee list.")
+        return
+
+    ok, event_or_msg = db.create_event(name, description, event_date)
+    if not ok:
+        print("❌ Error creating event:", event_or_msg)
+        return
+
+    event = event_or_msg
+
+    for uid in attendee_ids:
+        db.add_user_to_event(uid, event.id)
+
+    print(f"✔ Event '{event.event_name}' created with {len(attendee_ids)} attendees.")
+
+
+def handle_view_my_events(db, logged_user):
+    print("\n=== My Events ===")
+
+    events = db.get_events_for_user(logged_user.id)
+
+    if not events:
+        print("You have no events.")
+        return
+
+    for e in events:
+        print(f"[{e.id}] {e.event_name} | {e.event_date} | {e.description}")
+
 
 # ---------------------------------------------------------
 # MAIN LOOP
@@ -240,8 +296,20 @@ def menu_loop(auth, db, permissions):
 
         elif choice == "6":
             logged_user = handle_logout()
+        
         elif choice == "7":
             handle_create_role(permissions, logged_user)
+
+        elif choice == "8":
+            handle_create_event(db, logged_user, permissions)
+
+        elif choice == "9":
+            handle_view_my_events(db, logged_user)
+
+        elif choice == "0":
+            print("Exiting...")
+            return
+
 
 
         elif choice == "9":

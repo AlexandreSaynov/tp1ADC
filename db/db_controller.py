@@ -49,6 +49,27 @@ class DBController:
 
     def get_all_users(self):
         return self.session.query(User).all()
+    
+    def update_user(self, user_id: int, updates: dict):
+        user = self.get_user_by_id(user_id)
+        if not user:
+            return False, "User not found."
+        
+        if "username" in updates:
+            if self.session.query(User).filter_by(username=updates["username"]).first():
+                return False, "Username already exists."
+        if "email" in updates:
+            if self.session.query(User).filter_by(email=updates["email"]).first():
+                return False, "Email already exists."
+
+        for key, value in updates.items():
+            if hasattr(user, key):
+                setattr(user, key, value)
+            else:
+                return False, f"Invalid field: {key}"
+
+        self.session.commit()
+        return True, user
 
     # -----------------------------
     # GROUPS
@@ -126,26 +147,11 @@ class DBController:
 
         return True, "User added to event."
     
-    def update_user(self, user_id: int, updates: dict):
+    
+    
+    def get_events_from_user(self, user_id: int):
         user = self.get_user_by_id(user_id)
-        if not user:
-            return False, "User not found."
-        
-        if "username" in updates:
-            if self.session.query(User).filter_by(username=updates["username"]).first():
-                return False, "Username already exists."
-        if "email" in updates:
-            if self.session.query(User).filter_by(email=updates["email"]).first():
-                return False, "Email already exists."
-
-        for key, value in updates.items():
-            if hasattr(user, key):
-                setattr(user, key, value)
-            else:
-                return False, f"Invalid field: {key}"
-
-        self.session.commit()
-        return True, user
+        return user.events if user else None
 
 
     def close(self):
