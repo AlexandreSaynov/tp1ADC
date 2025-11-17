@@ -1,4 +1,5 @@
 from datetime import datetime
+from app.chats import chat_selection_loop
 import os
 import json
 
@@ -33,6 +34,7 @@ def build_menu(logged_user, permissions):
     add(("5", "View Profile", None))
     add(("6", "Logout", None))
     add(("7", "Create New Role", "role.create"))
+    add(("8", "Chat Menu", None))
     add(("9", "Exit", None))
 
     final = []
@@ -95,6 +97,8 @@ def handle_view_all_users(db, auth):
     handle_edit_user(db, auth, user_id)
 
 
+def handle_chat_selection_loop(logged_user):
+    chat_selection_loop(logged_user)
 
 def handle_create_group(db):
     name = input("Group name: ").strip()
@@ -247,6 +251,9 @@ def menu_loop(auth, db, permissions):
             logged_user = handle_logout()
         elif choice == "7":
             handle_create_role(permissions, logged_user)
+        elif choice == "8":
+            chat_selection_loop(logged_user)
+
 
 
         elif choice == "9":
