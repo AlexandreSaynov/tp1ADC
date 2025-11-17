@@ -244,14 +244,15 @@ def handle_create_event(db, logged_user, permissions):
 def handle_view_my_events(db, logged_user):
     print("\n=== My Events ===")
 
-    events = db.get_events_for_user(logged_user.id)
+    events = db.get_events_from_user(logged_user.id)
 
     if not events:
         print("You have no events.")
         return
 
     for e in events:
-        print(f"[{e.id}] {e.event_name} | {e.event_date} | {e.description}")
+        print(f"[{e.id}] {e.event_name} | {e.event_time} | {e.description}")
+
 
 
 # ---------------------------------------------------------

@@ -129,7 +129,9 @@ class DBController:
         )
         self.session.add(event)
         self.session.commit()
-        return event
+        return True, event
+
+
 
     def add_user_to_event(self, user_id: int, event_id: int):
         exists = (
