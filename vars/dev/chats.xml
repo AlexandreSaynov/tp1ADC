@@ -1,13 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <chats>
     <chat id="chat_001">
         <name>Project Discussion</name>
-        <participant>admin</participant>
+        <participant>root</participant>
         <participant>user1</participant>
         <participant>developer</participant>
-        <latest_timestamp>2025-11-17 14:35:22</latest_timestamp>
+        <latest_timestamp>2025-11-18 10:10:11</latest_timestamp>
         <message>
-            <sender>admin</sender>
+            <sender>root</sender>
             <content>Hey everyone, let's discuss the project timeline.</content>
             <timestamp>2025-11-17 14:20:00</timestamp>
         </message>
@@ -22,14 +21,13 @@
             <timestamp>2025-11-17 14:30:45</timestamp>
         </message>
         <message>
-            <sender>admin</sender>
+            <sender>root</sender>
             <content>Let me check with management on that.</content>
             <timestamp>2025-11-17 14:35:22</timestamp>
         </message>
-    </chat>
     <chat id="chat_002">
         <name>Team Updates</name>
-        <participant>admin</participant>
+        <participant>root</participant>
         <participant>manager</participant>
         <latest_timestamp>2025-11-17 13:10:30</latest_timestamp>
         <message>
@@ -38,14 +36,14 @@
             <timestamp>2025-11-17 09:00:00</timestamp>
         </message>
         <message>
-            <sender>admin</sender>
+            <sender>root</sender>
             <content>Going well! We're on track for the milestone.</content>
             <timestamp>2025-11-17 13:10:30</timestamp>
         </message>
     </chat>
     <chat id="chat_003">
         <name>Quick Chat</name>
-        <participant>admin</participant>
+        <participant>root</participant>
         <participant>colleague</participant>
         <latest_timestamp>2025-11-16 16:45:00</latest_timestamp>
         <message>

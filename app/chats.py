@@ -8,7 +8,6 @@ CHATS_FILE = "./vars/dev/chats.xml"
 RELOAD_INTERVAL = 0.5  # seconds
 
 def load_user_chats(logged_user):
-    """Load all chats related to the logged_user from XML file."""
     if not os.path.exists(CHATS_FILE):
         return []
     
@@ -30,7 +29,6 @@ def load_user_chats(logged_user):
     return user_chats
 
 def display_chat_menu(chats, page=0, page_size=5):
-    """Display paginated chat selection menu."""
     total_pages = (len(chats) + page_size - 1) // page_size
     start = page * page_size
     end = start + page_size
@@ -160,42 +158,32 @@ def chat_viewer(logged_user, chat_info):
     
     def get_user_input():
         nonlocal user_choice, user_message
-        while True:
+        choice = None
+        while choice != 'Q':
             choice = input().upper().strip()
             if choice == 'M':
                 message = input("Enter message: ").strip()
                 user_message = message
-                user_choice = 'M'
-            else:
+                add_message_to_chat(logged_user, chat_info["id"], user_message)
+                print("Message sent.")
+            elif choice == 'Q':
                 user_choice = 'Q'
-                break
+            else:
+                print("Invalid option. Type 'M' to send a message or 'Q' to quit.")
             input_event.set()
     
-    # Start input thread as daemon
     input_thread = threading.Thread(target=get_user_input, daemon=True)
     input_thread.start()
     
-    while True:
+    while user_choice != 'Q':
         messages, latest_timestamp = load_chat_messages(chat_info["id"])
         
-        # Display if there are new messages
         if latest_timestamp != last_timestamp:
             display_chat(chat_info, messages)
             last_timestamp = latest_timestamp
-        # Check for user input without blocking
-        if input_event.is_set():
-            if user_choice == 'Q':
-                input_thread.join()
-                break
-            elif user_choice == 'M' and user_message:
-                add_message_to_chat(logged_user, chat_info["id"], user_message)
-                print("Message sent.")
-            
-            user_choice = None
-            user_message = None
-            input_event.clear()
         
         time.sleep(RELOAD_INTERVAL)
+    input_thread.join(0)
 
 def chat_loop(logged_user):
     """Entry point for chat functionality."""
