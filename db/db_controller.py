@@ -171,6 +171,19 @@ class DBController:
     
     def get_event_by_id(self, event_id: int):
         return self.session.query(Event).filter_by(id=event_id).first()
+    
+    def get_attendees_from_event(self, event_id: int):
+        event = self.get_event_by_id(event_id)
+        if not event:
+            return None
+
+        attendees = (
+            self.session.query(User)
+            .join(UsersAttendingEvents, UsersAttendingEvents.user_id == User.id)
+            .filter(UsersAttendingEvents.event_id == event_id)
+            .all()
+        )
+        return attendees
 
 
     def close(self):

@@ -289,9 +289,17 @@ def handle_view_my_events(db, logged_user):
         return
 
     for e in events:
-        print(f"[{e.id}] {e.event_name} | {e.event_time} | {e.description}")
+        print(f"\n[{e.id}] {e.event_name} | {e.event_time} | {e.description}")
+        print("Attendees:")
 
-    # Permitir editar um evento próprio
+        attendees = db.get_attendees_from_event(e.id)
+        if not attendees:
+            print("  (No attendees)")
+        else:
+            for u in attendees:
+                print(f"  - {u.username} ({u.email})")
+
+
     choice = input("\nEnter the ID of the event to edit, or press ENTER to go back: ").strip()
     if not choice:
         return
@@ -302,7 +310,6 @@ def handle_view_my_events(db, logged_user):
         print("Invalid ID.")
         return
 
-    # Verifica se o evento pertence ao usuário
     if event_id not in [e.id for e in events]:
         print("You can only edit your own events.")
         return
