@@ -29,7 +29,7 @@ def build_menu(logged_user, permissions):
     add(("6", "Create New Role", "role.create"))
     add(("8", "Create New Event", "event.create"))
     add(("9", "View my Events", None))
-    add(("9", "Logout", None))
+    add(("10", "Logout", None))
     add(("0", "Exit", None))
 
     final = []
@@ -240,6 +240,44 @@ def handle_create_event(db, logged_user, permissions):
 
     print(f"✔ Event '{event.event_name}' created with {len(attendee_ids)} attendees.")
 
+def handle_edit_event(db, event_id):
+    event = db.get_event_by_id(event_id)
+    if not event:
+        print("Event not found.")
+        return
+
+    print(f"\n=== Edit Event: {event.event_name} ===")
+    print("[1] Change event name")
+    print("[2] Change description")
+    print("[3] Change event date/time")
+    print("[9] Cancel")
+
+    choice = input("Choose option: ").strip()
+    updates = {}
+
+    if choice == "1":
+        updates["event_name"] = input("New event name: ").strip()
+    elif choice == "2":
+        updates["description"] = input("New description: ").strip()
+    elif choice == "3":
+        date_str = input("New event date (YYYY-MM-DD HH:MM): ").strip()
+        try:
+            updates["event_time"] = datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+        except ValueError:
+            print("Invalid date format.")
+            return
+    elif choice == "9":
+        return
+    else:
+        print("Invalid option.")
+        return
+
+    if updates:
+        ok, result = db.update_event(event_id, updates)
+        if ok:
+            print("Event updated successfully.")
+        else:
+            print(f"Update failed: {result}")
 
 def handle_view_my_events(db, logged_user):
     print("\n=== My Events ===")
@@ -252,6 +290,25 @@ def handle_view_my_events(db, logged_user):
 
     for e in events:
         print(f"[{e.id}] {e.event_name} | {e.event_time} | {e.description}")
+
+    # Permitir editar um evento próprio
+    choice = input("\nEnter the ID of the event to edit, or press ENTER to go back: ").strip()
+    if not choice:
+        return
+
+    try:
+        event_id = int(choice)
+    except ValueError:
+        print("Invalid ID.")
+        return
+
+    # Verifica se o evento pertence ao usuário
+    if event_id not in [e.id for e in events]:
+        print("You can only edit your own events.")
+        return
+
+    handle_edit_event(db, event_id)
+
 
 
 
@@ -306,6 +363,9 @@ def menu_loop(auth, db, permissions):
 
         elif choice == "9":
             handle_view_my_events(db, logged_user)
+
+        elif choice == "10":
+            logged_user = handle_logout()
 
         elif choice == "0":
             print("Exiting...")

@@ -154,6 +154,23 @@ class DBController:
     def get_events_from_user(self, user_id: int):
         user = self.get_user_by_id(user_id)
         return user.events if user else None
+    
+    def update_event(self, event_id: int, updates: dict):
+        event = self.session.query(Event).filter_by(id=event_id).first()
+        if not event:
+            return False, "Event not found."
+        
+        for key, value in updates.items():
+            if hasattr(event, key):
+                setattr(event, key, value)
+            else:
+                return False, f"Invalid field: {key}"
+
+        self.session.commit()
+        return True, event
+    
+    def get_event_by_id(self, event_id: int):
+        return self.session.query(Event).filter_by(id=event_id).first()
 
 
     def close(self):
