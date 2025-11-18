@@ -184,7 +184,25 @@ class DBController:
             .all()
         )
         return attendees
+    
+    def set_event_attendees(self, event_id: int, new_attendee_ids: list[int]):
+        self.session.query(UsersAttendingEvents).filter_by(event_id=event_id).delete()
 
+        for uid in new_attendee_ids:
+            self.session.add(UsersAttendingEvents(user_id=uid, event_id=event_id))
+
+        self.session.commit()
+        return True, "Attendees updated successfully."
+
+
+    def delete_event(self, event_id: int):
+        event = self.get_event_by_id(event_id)
+        if not event:
+            return False, "Event not found."
+
+        self.session.delete(event)
+        self.session.commit()
+        return True, "Event deleted."
 
     def close(self):
         self.session.close()

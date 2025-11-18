@@ -250,6 +250,8 @@ def handle_edit_event(db, event_id):
     print("[1] Change event name")
     print("[2] Change description")
     print("[3] Change event date/time")
+    print("[4] Edit attendees")
+    print("[5] Delete this event")
     print("[9] Cancel")
 
     choice = input("Choose option: ").strip()
@@ -257,8 +259,10 @@ def handle_edit_event(db, event_id):
 
     if choice == "1":
         updates["event_name"] = input("New event name: ").strip()
+
     elif choice == "2":
         updates["description"] = input("New description: ").strip()
+
     elif choice == "3":
         date_str = input("New event date (YYYY-MM-DD HH:MM): ").strip()
         try:
@@ -266,8 +270,49 @@ def handle_edit_event(db, event_id):
         except ValueError:
             print("Invalid date format.")
             return
+
+    elif choice == "4":
+        print("\n=== Current Attendees ===")
+
+        attendees = db.get_attendees_from_event(event_id)
+        ids_current = [a.id for a in attendees]
+
+        for uid in ids_current:
+            user = db.get_user_by_id(uid)
+            print(f"[{user.id}] {user.username}")
+
+        print("\n=== All Users ===")
+        users = db.get_all_users()
+        for u in users:
+            mark = "*" if u.id in ids_current else " "
+            print(f"{mark} [{u.id}] {u.username}")
+
+        selected = input(
+            "\nEnter new attendee IDs (comma-separated): "
+        ).strip()
+
+        try:
+            new_ids = [int(x) for x in selected.split(",")]
+        except ValueError:
+            print("Invalid attendee list.")
+            return
+
+        ok, msg = db.set_event_attendees(event_id, new_ids)
+        print(msg)
+        return
+
+    elif choice == "5":
+        confirm = input("Are you sure you want to delete this event? (y/n): ").lower()
+        if confirm == "y":
+            ok, msg = db.delete_event(event_id)
+            print(msg)
+        else:
+            print("Delete canceled.")
+        return
+
     elif choice == "9":
         return
+
     else:
         print("Invalid option.")
         return
@@ -278,6 +323,8 @@ def handle_edit_event(db, event_id):
             print("Event updated successfully.")
         else:
             print(f"Update failed: {result}")
+
+
 
 def handle_view_my_events(db, logged_user):
     print("\n=== My Events ===")
