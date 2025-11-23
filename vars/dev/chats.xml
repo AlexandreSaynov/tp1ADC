@@ -1,0 +1,55 @@
+<chats>
+    <chat id="chat_001">
+        <name>Project Discussion</name>
+        <participant>root</participant>
+        <participant>user1</participant>
+        <participant>developer</participant>
+        <latest_timestamp>2025-11-18 10:10:11</latest_timestamp>
+        <message>
+            <sender>root</sender>
+            <content>Hey everyone, let's discuss the project timeline.</content>
+            <timestamp>2025-11-17 14:20:00</timestamp>
+        </message>
+        <message>
+            <sender>user1</sender>
+            <content>Sounds good! I have some concerns about the deadline.</content>
+            <timestamp>2025-11-17 14:25:15</timestamp>
+        </message>
+        <message>
+            <sender>developer</sender>
+            <content>I agree. We need at least 2 more weeks.</content>
+            <timestamp>2025-11-17 14:30:45</timestamp>
+        </message>
+        <message>
+            <sender>root</sender>
+            <content>Let me check with management on that.</content>
+            <timestamp>2025-11-17 14:35:22</timestamp>
+        </message>
+    <chat id="chat_002">
+        <name>Team Updates</name>
+        <participant>root</participant>
+        <participant>manager</participant>
+        <latest_timestamp>2025-11-17 13:10:30</latest_timestamp>
+        <message>
+            <sender>manager</sender>
+            <content>Morning! How's the sprint going?</content>
+            <timestamp>2025-11-17 09:00:00</timestamp>
+        </message>
+        <message>
+            <sender>root</sender>
+            <content>Going well! We're on track for the milestone.</content>
+            <timestamp>2025-11-17 13:10:30</timestamp>
+        </message>
+    </chat>
+    <chat id="chat_003">
+        <name>Quick Chat</name>
+        <participant>root</participant>
+        <participant>colleague</participant>
+        <latest_timestamp>2025-11-16 16:45:00</latest_timestamp>
+        <message>
+            <sender>colleague</sender>
+            <content>Did you see the latest update?</content>
+            <timestamp>2025-11-16 16:45:00</timestamp>
+        </message>
+    </chat>
+</chats>
