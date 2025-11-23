@@ -49,19 +49,52 @@ class DBController:
 
     def get_all_users(self):
         return self.session.query(User).all()
+    
+    def update_user(self, user_id: int, updates: dict):
+        user = self.get_user_by_id(user_id)
+        if not user:
+            return False, "User not found."
+        
+        if "username" in updates:
+            if self.session.query(User).filter_by(username=updates["username"]).first():
+                return False, "Username already exists."
+        if "email" in updates:
+            if self.session.query(User).filter_by(email=updates["email"]).first():
+                return False, "Email already exists."
+
+        for key, value in updates.items():
+            if hasattr(user, key):
+                setattr(user, key, value)
+            else:
+                return False, f"Invalid field: {key}"
+
+        self.session.commit()
+        return True, user
 
     # -----------------------------
     # GROUPS
     # -----------------------------
+    def get_group_by_id(self, group_id: int):
+        return self.session.query(Group).filter_by(id=group_id).first()
 
-    def create_group(self, group_name: str):
+
+    def get_all_groups(self):
+        return self.session.query(Group).all()
+
+    def create_group(self, group_name: str, owner_id: int = None):
         if self.session.query(Group).filter_by(group_name=group_name).first():
             return False, "Group name already exists."
+        
+        group = Group(
+            group_name=group_name,
+            owner_id=owner_id,
+            created_at=datetime.now()
+        )
 
-        group = Group(group_name=group_name, created_at=datetime.now())
         self.session.add(group)
         self.session.commit()
         return True, group
+
 
     def add_user_to_group(self, user_id: int, group_id: int):
         user = self.get_user_by_id(user_id)
@@ -95,6 +128,47 @@ class DBController:
     def get_groups_from_user(self, user_id: int):
         user = self.get_user_by_id(user_id)
         return user.groups if user else None
+    
+    def update_group_name(self, group_id, new_name):
+        group = self.get_group_by_id(group_id)
+        if not group:
+            return False, "Group not found."
+
+        group.group_name = new_name
+        self.session.commit()
+        return True, group
+    
+    def remove_user_from_group(self, user_id, group_id):
+        link = (
+            self.session.query(UsersInGroups)
+            .filter_by(user_id=user_id, group_id=group_id)
+            .first()
+        )
+
+        if not link:
+            return False, "User is not in this group."
+
+        self.session.delete(link)
+        self.session.commit()
+        return True, "User removed from group."
+
+    def delete_group(self, group_id):
+        group = self.session.query(Group).filter_by(id=group_id).first()
+        if not group:
+            return False, "Group not found."
+
+        self.session.query(UsersInGroups).filter_by(group_id=group_id).delete()
+
+        self.session.delete(group)
+        self.session.commit()
+
+        return True, "Group deleted successfully."
+
+    def get_groups_by_owner(self, owner_id):
+        return self.session.query(Group).filter_by(owner_id=owner_id).all()
+
+    def get_groups_by_member(self, user_id):
+        return self.session.query(Group).join(UsersInGroups).filter(UsersInGroups.user_id == user_id).all()
 
     # -----------------------------
     # EVENTS
@@ -108,7 +182,9 @@ class DBController:
         )
         self.session.add(event)
         self.session.commit()
-        return event
+        return True, event
+
+
 
     def add_user_to_event(self, user_id: int, event_id: int):
         exists = (
@@ -126,27 +202,60 @@ class DBController:
 
         return True, "User added to event."
     
-    def update_user(self, user_id: int, updates: dict):
+    
+    
+    def get_events_from_user(self, user_id: int):
         user = self.get_user_by_id(user_id)
-        if not user:
-            return False, "User not found."
+        return user.events if user else None
+    
+    def update_event(self, event_id: int, updates: dict):
+        event = self.session.query(Event).filter_by(id=event_id).first()
+        if not event:
+            return False, "Event not found."
         
-        if "username" in updates:
-            if self.session.query(User).filter_by(username=updates["username"]).first():
-                return False, "Username already exists."
-        if "email" in updates:
-            if self.session.query(User).filter_by(email=updates["email"]).first():
-                return False, "Email already exists."
-
         for key, value in updates.items():
-            if hasattr(user, key):
-                setattr(user, key, value)
+            if hasattr(event, key):
+                setattr(event, key, value)
             else:
                 return False, f"Invalid field: {key}"
 
         self.session.commit()
-        return True, user
+        return True, event
+    
+    def get_event_by_id(self, event_id: int):
+        return self.session.query(Event).filter_by(id=event_id).first()
+    
+    def get_attendees_from_event(self, event_id: int):
+        event = self.get_event_by_id(event_id)
+        if not event:
+            return None
 
+        attendees = (
+            self.session.query(User)
+            .join(UsersAttendingEvents, UsersAttendingEvents.user_id == User.id)
+            .filter(UsersAttendingEvents.event_id == event_id)
+            .all()
+        )
+        return attendees
+    
+    def set_event_attendees(self, event_id: int, new_attendee_ids: list[int]):
+        self.session.query(UsersAttendingEvents).filter_by(event_id=event_id).delete()
+
+        for uid in new_attendee_ids:
+            self.session.add(UsersAttendingEvents(user_id=uid, event_id=event_id))
+
+        self.session.commit()
+        return True, "Attendees updated successfully."
+
+
+    def delete_event(self, event_id: int):
+        event = self.get_event_by_id(event_id)
+        if not event:
+            return False, "Event not found."
+
+        self.session.delete(event)
+        self.session.commit()
+        return True, "Event deleted."
 
     def close(self):
         self.session.close()

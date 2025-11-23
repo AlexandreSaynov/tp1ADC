@@ -1,3 +1,13 @@
 {
-    "DB_URL": "sqlite:///db/app.db"
+    "DB_URL": "sqlite:///db/app.db",
+    "ALL_PERMISSIONS" : [
+    "user.create",
+    "user.view",
+    "group.create",
+    "group.view_all",
+    "group.manage_own",
+    "group.view",
+    "role.create"
+],
+    "ROLES_JSON_FILE" : "./vars/dev/permissions.json" 
 }

@@ -31,6 +31,7 @@ class Group(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     group_name = Column(String)
     created_at = Column(DateTime, default=datetime.now)
+    owner_id = Column(Integer, ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
 
     users = relationship('User', secondary='users_in_groups', back_populates='groups')
 
@@ -49,6 +50,7 @@ class Event(Base):
     event_name = Column(String)
     description = Column(String)
     event_time = Column(DateTime, default=datetime.now())
+    owner_id = Column(Integer, ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
 
     users = relationship('User', secondary='users_attending_events', back_populates='events')
 
