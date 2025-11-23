@@ -74,15 +74,27 @@ class DBController:
     # -----------------------------
     # GROUPS
     # -----------------------------
+    def get_group_by_id(self, group_id: int):
+        return self.session.query(Group).filter_by(id=group_id).first()
 
-    def create_group(self, group_name: str):
+
+    def get_all_groups(self):
+        return self.session.query(Group).all()
+
+    def create_group(self, group_name: str, owner_id: int = None):
         if self.session.query(Group).filter_by(group_name=group_name).first():
             return False, "Group name already exists."
+        
+        group = Group(
+            group_name=group_name,
+            owner_id=owner_id,
+            created_at=datetime.now()
+        )
 
-        group = Group(group_name=group_name, created_at=datetime.now())
         self.session.add(group)
         self.session.commit()
         return True, group
+
 
     def add_user_to_group(self, user_id: int, group_id: int):
         user = self.get_user_by_id(user_id)
@@ -116,6 +128,47 @@ class DBController:
     def get_groups_from_user(self, user_id: int):
         user = self.get_user_by_id(user_id)
         return user.groups if user else None
+    
+    def update_group_name(self, group_id, new_name):
+        group = self.get_group_by_id(group_id)
+        if not group:
+            return False, "Group not found."
+
+        group.group_name = new_name
+        self.session.commit()
+        return True, group
+    
+    def remove_user_from_group(self, user_id, group_id):
+        link = (
+            self.session.query(UsersInGroups)
+            .filter_by(user_id=user_id, group_id=group_id)
+            .first()
+        )
+
+        if not link:
+            return False, "User is not in this group."
+
+        self.session.delete(link)
+        self.session.commit()
+        return True, "User removed from group."
+
+    def delete_group(self, group_id):
+        group = self.session.query(Group).filter_by(id=group_id).first()
+        if not group:
+            return False, "Group not found."
+
+        self.session.query(UsersInGroups).filter_by(group_id=group_id).delete()
+
+        self.session.delete(group)
+        self.session.commit()
+
+        return True, "Group deleted successfully."
+
+    def get_groups_by_owner(self, owner_id):
+        return self.session.query(Group).filter_by(owner_id=owner_id).all()
+
+    def get_groups_by_member(self, user_id):
+        return self.session.query(Group).join(UsersInGroups).filter(UsersInGroups.user_id == user_id).all()
 
     # -----------------------------
     # EVENTS

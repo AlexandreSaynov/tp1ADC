@@ -3,7 +3,9 @@
     "ALL_PERMISSIONS" : [
     "user.create",
     "user.view",
-    "group.manage",
+    "group.create",
+    "group.view_all",
+    "group.manage_own",
     "group.view",
     "role.create"
 ],
