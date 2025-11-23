@@ -4,24 +4,27 @@ Este é um projeto de console em Python que implementa um sistema de gestão de 
 
 O projeto utiliza **SQLAlchemy** para persistência em banco de dados SQLite e **JSON** para gestão de permissões e roles.
 
+```text
 tp1/
 │
 ├─ app/
 │  ├─ auth.py           # Autenticação e registo de utilizadores
 │  ├─ menus.py          # Menus dinâmicos e handlers de ações
-│  ├─ permissions.py    # Gestão de roles e permissões
+│  └─ permissions.py    # Gestão de roles e permissões
 │
 ├─ db/
 │  ├─ db_controller.py  # Controller central para DB
 │  ├─ init_db.py        # Inicialização e seed do DB
-│  ├─ schema.py         # Modelos SQLAlchemy
+│  └─ schema.py         # Modelos SQLAlchemy
 │
 ├─ vars/dev/
 │  ├─ permissions.json  # Roles e permissões
-│  ├─ vars.json         # Configurações gerais e DB URL
+│  └─ vars.json         # Configurações gerais e DB URL
 │
 ├─ main_app.py          # Entry point principal
-└─ README.md            
+└─ README.md
+```
+    
 
 ## Funcionalidades
 
