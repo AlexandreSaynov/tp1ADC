@@ -16,19 +16,6 @@
         {
             "name": "user",
             "permissions": []
-        },
-        {
-            "name": "Teste",
-            "permissions": [
-                "group.manage_own"
-            ]
-        },
-        {
-            "name": "testeee",
-            "permissions": [
-                "group.create",
-                "group.manage_own"
-            ]
         }
     ]
 }
