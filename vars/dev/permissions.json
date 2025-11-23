@@ -5,7 +5,9 @@
             "permissions": [
                 "user.create",
                 "user.view",
-                "group.manage",
+                "group.create",
+                "group.view_all",
+                "group.manage_own",
                 "group.view",
                 "role.create",
                 "event.create"
@@ -14,6 +16,19 @@
         {
             "name": "user",
             "permissions": []
+        },
+        {
+            "name": "Teste",
+            "permissions": [
+                "group.manage_own"
+            ]
+        },
+        {
+            "name": "testeee",
+            "permissions": [
+                "group.create",
+                "group.manage_own"
+            ]
         }
     ]
 }
