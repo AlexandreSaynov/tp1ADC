@@ -1,5 +1,6 @@
 from datetime import datetime
 from app.chats import chat_selection_loop
+from app.handlers import handle_login, handle_logout
 import os
 import json
 
@@ -59,14 +60,6 @@ def print_dynamic_menu(logged_user, permissions):
 # HANDLERS
 # ---------------------------------------------------------
 
-def handle_login(auth):
-    username = input("Username: ").strip()
-    password = input("Password: ").strip()
-    return auth.login(username, password)
-
-def handle_logout():
-    print("Logging out...")
-    return None
 
 def handle_register_user(auth):
     print("=== Register User ===")
