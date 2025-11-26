@@ -1,6 +1,6 @@
 from datetime import datetime
 from app.chats import chat_selection_loop
-from app.handlers import handle_login, handle_logout
+from app.handlers import handle_login, handle_logout, handle_register_user, handle_view_all_users
 import os
 import json
 
@@ -59,33 +59,6 @@ def print_dynamic_menu(logged_user, permissions):
 # ---------------------------------------------------------
 # HANDLERS
 # ---------------------------------------------------------
-
-
-def handle_register_user(auth):
-    print("=== Register User ===")
-    username = input("Username: ").strip()
-    email = input("Email: ").strip()
-    password = input("Password: ").strip()
-    auth.register_user(username, email, password)
-
-def handle_view_all_users(db, auth):
-    print("\n=== Users ===")
-    users = db.get_all_users()
-    for u in users:
-        print(f"[{u.id}] {u.username} | {u.email} | {u.access_level}")
-
-    choice = input("\nEnter the ID of the user you want to edit, or press ENTER to go back: ").strip()
-    if not choice:
-        return
-
-    try:
-        user_id = int(choice)
-    except ValueError:
-        print("Invalid ID.")
-        return
-
-    handle_edit_user(db, auth, user_id)
-
 
 def handle_chat_selection_loop(logged_user):
     chat_selection_loop(logged_user)
@@ -296,43 +269,6 @@ def handle_view_profile(user):
     print(f"Email: {user.email}")
     print(f"Role: {user.access_level}")
 
-def handle_edit_user(db, auth, user_id):
-    user = db.get_user_by_id(user_id)
-    if not user:
-        print("User not found.")
-        return
-
-    print(f"\n=== Edit User: {user.username} ===")
-    print("[1] Change username")
-    print("[2] Change email")
-    print("[3] Change password")
-    print("[4] Change role (access level)")
-    print("[9] Cancel")
-
-    choice = input("Choose option: ").strip()
-    updates = {}
-
-    if choice == "1":
-        updates["username"] = input("New username: ").strip()
-    elif choice == "2":
-        updates["email"] = input("New email: ").strip()
-    elif choice == "3":
-        new_pwd = input("New password: ").strip()
-        updates["password_hash"] = auth.hash_password(new_pwd)
-    elif choice == "4":
-        updates["access_level"] = input("New role/access level: ").strip()
-    elif choice == "9":
-        return
-    else:
-        print("Invalid option.")
-        return
-
-    if updates:
-        ok, result = db.update_user(user_id, updates)
-        if ok:
-            print("User updated successfully.")
-        else:
-            print(f"Update failed: {result}")
 
 def handle_create_role(permissions, logged_user):
     if not permissions.has_permission(logged_user, "role.create"):
