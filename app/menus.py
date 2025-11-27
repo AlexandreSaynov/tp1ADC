@@ -1,4 +1,5 @@
 from datetime import datetime
+from math import perm
 from app.handlers.chats import chat_selection_loop
 from app.handlers.login import handle_login, handle_logout
 from app.handlers.register import handle_register_user
@@ -39,42 +40,54 @@ def build_dynamic_menu_from_features(logged_user, permissions):
         add(("exit", "Exit", None))
         return menu
 
-    # Iterate through the features and add them to the menu
-    for group, functions in implemented_features.items():
-        for function, frontend_name in functions.items():
-            # Check if the function requires a permission
-            permission = None
-            if frontend_name == "Login":
-                continue  # Skip login for logged in users
-            if function in config_data.get("ALL_PERMISSIONS", []):
-                permission = function
-
-            # Add the menu option
-            add((function, frontend_name, permission))
+    # Add the major categories to the menu
+    for group in implemented_features.keys():
+        add((group, group, None))  # Add the group name as a menu option
 
     # Add the logout and exit options
     add(("handle_logout", "Logout", None))
     add(("exit", "Exit", None))
 
-    # Filter the menu based on user permissions
-    final_menu = []
-    for function, label, perm in menu:
-        if perm is None or permissions.has_permission(logged_user, perm):
-            final_menu.append((function, label, perm))
-
-    return final_menu
+    return menu
 
 
-def print_dynamic_menu_from_features(logged_user, permissions):
+def build_submenu(group, logged_user, permissions):
     """
-    Prints the dynamic menu built from IMPLEMENTED_FEATURES.
+    Builds a submenu for a specific group based on the IMPLEMENTED_FEATURES in vars.json.
     """
-    menu = build_dynamic_menu_from_features(logged_user, permissions)
+    # Load the configuration file
+    with open("./vars/dev/vars.json", "r") as file:
+        config_data = json.load(file)
 
-    if logged_user:
-        print(f"\nLogged in as: {logged_user.username} ({logged_user.access_level})")
+    # Retrieve the implemented features for the selected group
+    implemented_features = config_data["IMPLEMENTED_FEATURES"]
+    group_features = implemented_features.get(group, {})
 
-    print("============== MENU ==============")
+    submenu = []
+    add = submenu.append
+
+    # Add the features of the selected group to the submenu
+    for function, frontend_name in group_features.items():
+        # Check if the function requires a permission
+        permission = None
+        if function in config_data.get("ALL_PERMISSIONS", []):
+            permission = function
+
+        # Add the submenu option
+        if permission is None or permissions.has_permission(logged_user, permission):
+            add((function, frontend_name, permission))
+
+    # Add a "Back" option to return to the main menu
+    add(("back", "Back", None))
+
+    return submenu
+
+
+def print_menu(menu, title="MENU"):
+    """
+    Prints a menu with the given title.
+    """
+    print(f"============== {title} ==============")
     for idx, (function, label, _) in enumerate(menu, start=1):
         print(f"{idx}. {label}")
     print("==================================\n")
@@ -87,10 +100,11 @@ def menu_loop(auth, db, permissions):
     logged_user = None
 
     while True:
+        # Build and display the main menu
         menu = build_dynamic_menu_from_features(logged_user, permissions)
-        print_dynamic_menu_from_features(logged_user, permissions)
+        print_menu(menu, title="MAIN MENU")
 
-        choice = input("Choose an option: ").strip()
+        choice = input("Choose a category: ").strip()
 
         # Validate the choice
         try:
@@ -101,8 +115,8 @@ def menu_loop(auth, db, permissions):
             print("Invalid option.")
             continue
 
-        # Retrieve the selected function
-        selected_function, _, _ = menu[choice_idx]
+        # Retrieve the selected function or group
+        selected_function, label, _ = menu[choice_idx]
 
         # Handle the selected function
         if selected_function == "handle_login":
@@ -115,8 +129,30 @@ def menu_loop(auth, db, permissions):
             print("Exiting...")
             return
 
-        # Call the appropriate handler dynamically
-        if selected_function in globals():
-            globals()[selected_function](db, logged_user, permissions)
-        else:
-            print(f"Function '{selected_function}' is not implemented.")
+        # If a group is selected, open its submenu
+        if selected_function in config_data["IMPLEMENTED_FEATURES"]:
+            while True:
+                submenu = build_submenu(selected_function, logged_user, permissions)
+                print_menu(submenu, title=f"{label.upper()} MENU")
+
+                sub_choice = input("Choose an option: ").strip()
+
+                # Validate the submenu choice
+                try:
+                    sub_choice_idx = int(sub_choice) - 1
+                    if sub_choice_idx < 0 or sub_choice_idx >= len(submenu):
+                        raise ValueError
+                except ValueError:
+                    print("Invalid option.")
+                    continue
+
+                # Retrieve the selected submenu function
+                sub_function, sub_label, _ = submenu[sub_choice_idx]
+
+                # Handle the submenu function
+                if sub_function == "back":
+                    break  # Return to the main menu
+                elif sub_function in globals():
+                    globals()[sub_function](db, logged_user, permissions)
+                else:
+                    print(f"Function '{sub_function}' is not implemented.")
