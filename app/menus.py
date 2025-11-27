@@ -11,6 +11,8 @@ from app.handlers.events import handle_create_event, handle_view_my_events
 from app.handlers.check_user import handle_view_profile
 import os
 import json
+import inspect
+
 
 with open("./vars/dev/vars.json") as file:
     config_data = json.load(file)
@@ -153,6 +155,21 @@ def menu_loop(auth, db, permissions):
                 if sub_function == "back":
                     break  # Return to the main menu
                 elif sub_function in globals():
-                    globals()[sub_function](db, logged_user, permissions)
+                    call_handler(
+                        globals()[sub_function],
+                        db=db,
+                        logged_user=logged_user,
+                        permissions=permissions,
+                        auth=auth
+                    )
                 else:
                     print(f"Function '{sub_function}' is not implemented.")
+
+
+def call_handler(func, **possible_args):
+    sig = inspect.signature(func)
+    accepted = {
+        name: value for name, value in possible_args.items()
+        if name in sig.parameters
+    }
+    return func(**accepted)
