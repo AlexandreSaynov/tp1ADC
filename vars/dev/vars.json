@@ -9,5 +9,38 @@
     "group.view",
     "role.create"
 ],
-    "ROLES_JSON_FILE" : "./vars/dev/permissions.json" 
+    "ROLES_JSON_FILE" : "./vars/dev/permissions.json",
+    "IMPLEMENTED_FEATURES" : {
+        "Chats": {
+            "load_user_chats": "Load User Chats",
+            "display_chat_menu": "Display Chat Menu",
+            "chat_selection_loop": "Chat Selection Loop",
+            "load_chat_messages": "Load Chat Messages",
+            "display_chat": "Display Chat",
+            "add_message_to_chat": "Add Message to Chat",
+            "chat_viewer": "Chat Viewer",
+            "chat_loop": "Chat Loop"
+        },
+        "Events": {
+            "handle_create_event": "Create Event",
+            "handle_edit_event": "Edit Event",
+            "handle_view_my_events": "View My Events"
+        },
+        "Roles": {
+            "handle_create_role": "Create Role"
+        },
+        "Users": {
+            "handle_view_profile": "View Profile",
+            "handle_login": "Login",
+            "handle_logout": "Logout"
+        },
+        "Groups": {
+            "handle_create_group": "Create Group",
+            "handle_view_all_groups": "View All Groups",
+            "handle_view_group": "View Group",
+            "handle_manage_my_groups": "Manage My Groups",
+            "handle_edit_group": "Edit Group",
+            "handle_manage_group_members": "Manage Group Members"
+        }
+    }
 }
