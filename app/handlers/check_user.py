@@ -1,6 +1,6 @@
-def handle_view_profile(user):
+def handle_view_profile(logged_user):
     print("\n=== Your Profile ===")
-    print(f"ID: {user.id}")
-    print(f"Username: {user.username}")
-    print(f"Email: {user.email}")
-    print(f"Role: {user.access_level}")
+    print(f"ID: {logged_user.id}")
+    print(f"Username: {logged_user.username}")
+    print(f"Email: {logged_user.email}")
+    print(f"Role: {logged_user.access_level}")

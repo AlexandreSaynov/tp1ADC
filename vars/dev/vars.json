@@ -31,8 +31,9 @@
         },
         "Users": {
             "handle_view_profile": "View Profile",
-            "handle_login": "Login",
-            "handle_logout": "Logout"
+            "handle_logout": "Logout",
+            "handle_register_user": "Create User",
+            "handle_view_all_users": "View All Users"
         },
         "Groups": {
             "handle_create_group": "Create Group",
