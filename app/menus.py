@@ -70,14 +70,12 @@ def build_submenu(group, logged_user, permissions):
 
     # Add the features of the selected group to the submenu
     for function, frontend_name in group_features.items():
-        # Check if the function requires a permission
-        permission = None
-        if function in config_data.get("ALL_PERMISSIONS", []):
-            permission = function
 
-        # Add the submenu option
+        permission = config_data["PERMISSION_MAP"].get(function)
+
         if permission is None or permissions.has_permission(logged_user, permission):
             add((function, frontend_name, permission))
+
 
     # Add a "Back" option to return to the main menu
     add(("back", "Back", None))
