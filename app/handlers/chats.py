@@ -263,7 +263,8 @@ def manage_chat(logged_user, chat_info, db):
         print(f"MANAGE CHAT: {chat_info['name']}")
         print("="*50)
         print("1. Edit chat name")
-        print("2. Delete chat")
+        print("2. Edit members")
+        print("3. Delete chat")
         print("Q. Quit to previous menu")
         print("-"*50)
         
@@ -279,6 +280,9 @@ def manage_chat(logged_user, chat_info, db):
                 print("Chat name cannot be empty.")
         
         elif choice == '2':
+            edit_chat_members(chat_info, db, logged_user)
+        
+        elif choice == '3':
             confirm = input("Are you sure you want to delete this chat? (Y/N): ").upper().strip()
             if confirm == 'Y':
                 if delete_chat(chat_info["id"]):
@@ -291,6 +295,7 @@ def manage_chat(logged_user, chat_info, db):
             break
         else:
             print("Invalid option.")
+
 
 def delete_chat(chat_id):
     if not os.path.exists(CHATS_FILE):
@@ -325,4 +330,74 @@ def edit_chat_name(chat_id, new_name):
             chat.find("name").text = new_name
             tree.write(CHATS_FILE)
             return True
+    return False
+
+
+def edit_chat_members(chat_info, db, logged_user):
+    while True:
+        print("\nCurrent participants:", ", ".join(chat_info["participants"]))
+        print("1. Add participant")
+        print("2. Remove participant")
+        print("Q. Quit")
+        
+        choice = input("Select option: ").upper().strip()
+        
+        if choice == '1':
+            new_ids = helper_select_users(db, allow_multiple=True, exclude_ids=set(chat_info["participants"]))
+            for uid in new_ids:
+                user = db.get_user_by_id(uid)
+                if user:
+                    chat_info["participants"].append(user.username)
+                    add_participant_to_chat(chat_info["id"], user.username)
+            print("Participants added.")
+        
+        elif choice == '2':
+            removable = [p for p in chat_info["participants"] if p != logged_user.username]
+            if not removable:
+                print("No participants can be removed.")
+                continue
+            print("Removable participants:", ", ".join(removable))
+            remove_name = input("Enter participant username to remove: ").strip()
+            if remove_name in removable:
+                chat_info["participants"].remove(remove_name)
+                remove_participant_from_chat(chat_info["id"], remove_name)
+                print(f"{remove_name} removed.")
+            else:
+                print("Invalid username.")
+        
+        elif choice == 'Q':
+            break
+        else:
+            print("Invalid option.")
+
+
+def add_participant_to_chat(chat_id, username):
+    if not os.path.exists(CHATS_FILE):
+        return False
+    
+    tree = ET.parse(CHATS_FILE)
+    root = tree.getroot()
+    
+    for chat in root.findall("chat"):
+        if chat.get("id") == chat_id:
+            ET.SubElement(chat, "participant").text = username
+            tree.write(CHATS_FILE)
+            return True
+    return False
+
+
+def remove_participant_from_chat(chat_id, username):
+    if not os.path.exists(CHATS_FILE):
+        return False
+    
+    tree = ET.parse(CHATS_FILE)
+    root = tree.getroot()
+    
+    for chat in root.findall("chat"):
+        if chat.get("id") == chat_id:
+            for p in chat.findall("participant"):
+                if p.text == username:
+                    chat.remove(p)
+                    tree.write(CHATS_FILE)
+                    return True
     return False
