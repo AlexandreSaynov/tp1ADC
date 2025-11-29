@@ -3,9 +3,68 @@ from datetime import datetime
 import time
 import os
 import threading
+from app.handlers._helper import helper_select_users
 
 CHATS_FILE = "./vars/dev/chats.xml"
 RELOAD_INTERVAL = 0.5  # seconds
+
+def handle_create_chat(db, logged_user):
+    print("\n=== Create New Chat ===")
+
+    name = input("Chat name: ").strip()
+    if not name:
+        print("Chat name cannot be empty.")
+        return
+
+    print("\nSelect participants:")
+    participant_ids = helper_select_users(db, allow_multiple=True, exclude_ids={logged_user.id})
+
+    if not participant_ids:
+        print("No participants selected.")
+        return
+
+    participants = []
+    for uid in participant_ids:
+        user = db.get_user_by_id(uid)
+        if user:
+            participants.append(user.username)
+
+    if logged_user.username not in participants:
+        participants.append(logged_user.username)
+
+    create_chat_in_xml(name, participants)
+
+    print(f"Chat '{name}' created successfully!")
+
+def create_chat_in_xml(name, participants):
+    if os.path.exists(CHATS_FILE):
+        tree = ET.parse(CHATS_FILE)
+        root = tree.getroot()
+    else:
+        root = ET.Element("chats")
+        tree = ET.ElementTree(root)
+
+    existing_ids = [
+        int(chat.get("id").replace("chat_", "")) 
+        for chat in root.findall("chat")
+    ]
+
+    next_id = max(existing_ids, default=0) + 1
+    chat_id = f"chat_{next_id:03}"
+
+    chat_elem = ET.SubElement(root, "chat")
+    chat_elem.set("id", chat_id)
+
+    ET.SubElement(chat_elem, "name").text = name
+
+    for p in participants:
+        ET.SubElement(chat_elem, "participant").text = p
+
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    ET.SubElement(chat_elem, "latest_timestamp").text = now
+
+    tree.write(CHATS_FILE)
+
 
 def load_user_chats(logged_user):
     if not os.path.exists(CHATS_FILE):

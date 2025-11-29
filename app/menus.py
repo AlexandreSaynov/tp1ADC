@@ -1,6 +1,6 @@
 from datetime import datetime
 from math import perm
-from app.handlers.chats import chat_selection_loop
+from app.handlers.chats import chat_selection_loop, handle_create_chat
 from app.handlers.login import handle_login, handle_logout
 from app.handlers.register import handle_register_user
 from app.handlers.view_users import handle_view_all_users

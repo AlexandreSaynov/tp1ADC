@@ -12,7 +12,8 @@
     "ROLES_JSON_FILE" : "./vars/dev/permissions.json",
     "IMPLEMENTED_FEATURES" : {
         "Chats": {
-            "chat_selection_loop": "My Chats"
+            "chat_selection_loop": "My Chats",
+            "handle_create_chat": "Create Chat"
         },
         "Events": {
             "handle_create_event": "Create Event",
