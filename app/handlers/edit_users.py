@@ -1,4 +1,4 @@
-def handle_edit_user(db, auth, user_id):
+def handle_edit_user(db, auth, user_id,permission):
     user = db.get_user_by_id(user_id)
     if not user:
         print("User not found.")
@@ -8,7 +8,7 @@ def handle_edit_user(db, auth, user_id):
     print("[1] Change username")
     print("[2] Change email")
     print("[3] Change password")
-    print("[4] Change role (access level)")
+    print("[4] Change role (access level)") if permission.has_permission(user, "user.edit_role") else None
     print("[9] Cancel")
 
     choice = input("Choose option: ").strip()
@@ -21,7 +21,7 @@ def handle_edit_user(db, auth, user_id):
     elif choice == "3":
         new_pwd = input("New password: ").strip()
         updates["password_hash"] = auth.hash_password(new_pwd)
-    elif choice == "4":
+    elif choice == "4" and permission.has_permission(user, "user.edit_role"):
         updates["access_level"] = input("New role/access level: ").strip()
     elif choice == "9":
         return
