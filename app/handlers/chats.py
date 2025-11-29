@@ -113,7 +113,7 @@ def display_chat_menu(chats, page=0, page_size=5):
     
     return page, total_pages
 
-def chat_selection_loop(logged_user):
+def chat_selection_loop(logged_user, db):
     chats = load_user_chats(logged_user)
     
     if not chats:
@@ -121,10 +121,10 @@ def chat_selection_loop(logged_user):
         return
     
     page = 0
+    page_size = 5
     
     while True:
         page, total_pages = display_chat_menu(chats, page)
-        page_size = 5
         start = page * page_size
         end = start + page_size
         
@@ -140,7 +140,18 @@ def chat_selection_loop(logged_user):
             idx = int(choice) - 1
             if 0 <= idx < len(chats[start:end]):
                 selected_chat = chats[start + idx]
+                
+                if logged_user.username == selected_chat["owner"]:
+                    print(f"\nYou are the owner of '{selected_chat['name']}'")
+                    print("1. Enter chat")
+                    print("2. Manage chat")
+                    sub_choice = input("Choose option: ").strip()
+                    if sub_choice == '2':
+                        manage_chat(logged_user, selected_chat, db)
+                        chats = load_user_chats(logged_user)
+                        continue
                 chat_viewer(logged_user, selected_chat)
+
 
 def load_chat_messages(chat_id):
     if not os.path.exists(CHATS_FILE):
@@ -242,7 +253,44 @@ def chat_viewer(logged_user, chat_info):
 def chat_loop(logged_user):
     chat_selection_loop(logged_user)
 
+def manage_chat(logged_user, chat_info, db):
+    if logged_user.username != chat_info["owner"]:
+        print("\nOnly the chat owner can manage this chat.")
+        return
 
+    while True:
+        print("\n" + "="*50)
+        print(f"MANAGE CHAT: {chat_info['name']}")
+        print("="*50)
+        print("1. Edit chat name")
+        print("2. Delete chat")
+        print("Q. Quit to previous menu")
+        print("-"*50)
+        
+        choice = input("Select option: ").upper().strip()
+        
+        if choice == '1':
+            new_name = input("Enter new chat name: ").strip()
+            if new_name:
+                edit_chat_name(chat_info["id"], new_name)
+                chat_info["name"] = new_name
+                print("Chat name updated.")
+            else:
+                print("Chat name cannot be empty.")
+        
+        elif choice == '2':
+            confirm = input("Are you sure you want to delete this chat? (Y/N): ").upper().strip()
+            if confirm == 'Y':
+                if delete_chat(chat_info["id"]):
+                    print("Chat deleted.")
+                    break
+                else:
+                    print("Error deleting chat.")
+        
+        elif choice == 'Q':
+            break
+        else:
+            print("Invalid option.")
 
 def delete_chat(chat_id):
     if not os.path.exists(CHATS_FILE):
