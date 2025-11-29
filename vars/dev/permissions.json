@@ -10,12 +10,19 @@
                 "group.manage_own",
                 "group.view",
                 "role.create",
-                "event.create"
+                "event.create",
+                "event.view_all"
             ]
         },
         {
             "name": "user",
-            "permissions": []
+            "permissions": [
+                "user.view",
+                "group.view",
+                "event.create",
+                "group.view",
+                "group.manage_own"
+            ]
         }
     ]
 }

@@ -156,8 +156,8 @@ class DBController:
         group = self.session.query(Group).filter_by(id=group_id).first()
         if not group:
             return False, "Group not found."
-
-        self.session.query(UsersInGroups).filter_by(group_id=group_id).delete()
+        print(group_id)
+        users_in_groups = self.session.query(UsersInGroups).filter_by(group_id=group_id).delete()
 
         self.session.delete(group)
         self.session.commit()
@@ -207,6 +207,9 @@ class DBController:
     def get_events_from_user(self, user_id: int):
         user = self.get_user_by_id(user_id)
         return user.events if user else None
+    
+    def get_all_events(self):
+        return self.session.query(Event).all()
     
     def update_event(self, event_id: int, updates: dict):
         event = self.session.query(Event).filter_by(id=event_id).first()

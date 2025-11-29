@@ -104,15 +104,51 @@ def handle_edit_event(db, event_id):
         else:
             print(f"Update failed: {result}")
 
-
-
 def handle_view_my_events(db, logged_user):
-    print("\n=== My Events ===")
+    print("\n=== All Events ===")
 
     events = db.get_events_from_user(logged_user.id)
 
     if not events:
-        print("You have no events.")
+        print("No events exist.")
+        return
+
+    for e in events:
+        print(f"\n[{e.id}] {e.event_name} | {e.event_time} | {e.description}")
+        print("Attendees:")
+
+        attendees = db.get_attendees_from_event(e.id)
+        if not attendees:
+            print("  (No attendees)")
+        else:
+            for u in attendees:
+                print(f"  - {u.username} ({u.email})")
+
+
+    choice = input("\nEnter the ID of the event to edit, or press ENTER to go back: ").strip()
+    if not choice:
+        return
+
+    try:
+        event_id = int(choice)
+    except ValueError:
+        print("Invalid ID.")
+        return
+
+    if event_id not in [e.id for e in events]:
+        print("You can only edit your own events.")
+        return
+
+    handle_edit_event(db, event_id)
+
+
+def handle_view_all_events(db, logged_user):
+    print("\n=== All Events ===")
+
+    events = db.get_all_events()
+
+    if not events:
+        print("No events exist.")
         return
 
     for e in events:
