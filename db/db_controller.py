@@ -208,6 +208,9 @@ class DBController:
         user = self.get_user_by_id(user_id)
         return user.events if user else None
     
+    def get_all_events(self):
+        return self.session.query(Event).all()
+    
     def update_event(self, event_id: int, updates: dict):
         event = self.session.query(Event).filter_by(id=event_id).first()
         if not event:

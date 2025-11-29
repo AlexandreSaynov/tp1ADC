@@ -125,14 +125,13 @@ def handle_edit_event(db, event_id):
             print(f"Update failed: {result}")
 
 
+def handle_view_all_events(db, logged_user):
+    print("\n=== All Events ===")
 
-def handle_view_my_events(db, logged_user):
-    print("\n=== My Events ===")
-
-    events = db.get_events_from_user(logged_user.id)
+    events = db.get_all_events()
 
     if not events:
-        print("You have no events.")
+        print("No events exist.")
         return
 
     for e in events:
