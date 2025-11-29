@@ -31,15 +31,19 @@ def handle_create_chat(db, logged_user):
 
 
 def create_chat_in_xml(name, participants, owner_username):
-    if os.path.exists(CHATS_FILE):
-        tree = ET.parse(CHATS_FILE)
-        root = tree.getroot()
+    if os.path.exists(CHATS_FILE) and os.path.getsize(CHATS_FILE) > 0:
+        try:
+            tree = ET.parse(CHATS_FILE)
+            root = tree.getroot()
+        except ET.ParseError:
+            root = ET.Element("chats")
+            tree = ET.ElementTree(root)
     else:
         root = ET.Element("chats")
         tree = ET.ElementTree(root)
 
     existing_ids = [
-        int(chat.get("id").replace("chat_", ""))
+        int(chat.get("id").replace("chat_", "")) 
         for chat in root.findall("chat")
     ]
     next_id = max(existing_ids, default=0) + 1
@@ -47,7 +51,6 @@ def create_chat_in_xml(name, participants, owner_username):
 
     chat_elem = ET.SubElement(root, "chat")
     chat_elem.set("id", chat_id)
-
     ET.SubElement(chat_elem, "name").text = name
     ET.SubElement(chat_elem, "owner").text = owner_username
 
@@ -60,7 +63,49 @@ def create_chat_in_xml(name, participants, owner_username):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     ET.SubElement(chat_elem, "latest_timestamp").text = now
 
-    tree.write(CHATS_FILE)
+    try:
+        ET.indent(tree, space="  ", level=0)
+    except AttributeError:
+        def indent(elem, level=0):
+            i = "\n" + level*"  "
+            if len(elem):
+                if not elem.text or not elem.text.strip():
+                    elem.text = i + "  "
+                for child in elem:
+                    indent(child, level+1)
+                if not elem.tail or not elem.tail.strip():
+                    elem.tail = i
+            else:
+                if level and (not elem.tail or not elem.tail.strip()):
+                    elem.tail = i
+        indent(tree.getroot())
+
+    tree.write(CHATS_FILE, encoding="utf-8", xml_declaration=True)
+
+    
+
+
+def write_xml(tree, file_path=CHATS_FILE):
+    """Grava o XML com indentação, compatível com Python <3.9 e >=3.9"""
+    try:
+        # Python 3.9+
+        ET.indent(tree, space="  ", level=0)
+    except AttributeError:
+        def indent(elem, level=0):
+            i = "\n" + level*"  "
+            if len(elem):
+                if not elem.text or not elem.text.strip():
+                    elem.text = i + "  "
+                for child in elem:
+                    indent(child, level+1)
+                if not elem.tail or not elem.tail.strip():
+                    elem.tail = i
+            else:
+                if level and (not elem.tail or not elem.tail.strip()):
+                    elem.tail = i
+        indent(tree.getroot())
+
+    tree.write(file_path, encoding="utf-8", xml_declaration=True)
 
 
 
@@ -210,6 +255,7 @@ def add_message_to_chat(logged_user, chat_id, content):
             else:
                 ET.SubElement(chat, "latest_timestamp").text = timestamp
             
+            ET.indent(tree, space="  ", level=0)
             tree.write(CHATS_FILE)
             return True
     
@@ -312,6 +358,7 @@ def delete_chat(chat_id):
     
     if chat_to_delete is not None:
         root.remove(chat_to_delete)
+        ET.indent(tree, space="  ", level=0)
         tree.write(CHATS_FILE)
         return True
     
@@ -328,6 +375,7 @@ def edit_chat_name(chat_id, new_name):
     for chat in root.findall("chat"):
         if chat.get("id") == chat_id:
             chat.find("name").text = new_name
+            ET.indent(tree, space="  ", level=0)
             tree.write(CHATS_FILE)
             return True
     return False
@@ -381,6 +429,7 @@ def add_participant_to_chat(chat_id, username):
     for chat in root.findall("chat"):
         if chat.get("id") == chat_id:
             ET.SubElement(chat, "participant").text = username
+            ET.indent(tree, space="  ", level=0)
             tree.write(CHATS_FILE)
             return True
     return False
@@ -398,6 +447,7 @@ def remove_participant_from_chat(chat_id, username):
             for p in chat.findall("participant"):
                 if p.text == username:
                     chat.remove(p)
+                    ET.indent(tree, space="  ", level=0)
                     tree.write(CHATS_FILE)
                     return True
     return False
