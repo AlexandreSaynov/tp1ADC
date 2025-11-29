@@ -1,6 +1,6 @@
 from datetime import datetime
 from math import perm
-from app.handlers.chats import chat_selection_loop
+from app.handlers.chats import chat_selection_loop, handle_create_chat
 from app.handlers.login import handle_login, handle_logout
 from app.handlers.register import handle_register_user
 from app.handlers.view_users import handle_view_all_users
@@ -11,6 +11,8 @@ from app.handlers.events import handle_create_event, handle_view_my_events
 from app.handlers.check_user import handle_view_profile
 import os
 import json
+import inspect
+
 
 with open("./vars/dev/vars.json") as file:
     config_data = json.load(file)
@@ -68,14 +70,12 @@ def build_submenu(group, logged_user, permissions):
 
     # Add the features of the selected group to the submenu
     for function, frontend_name in group_features.items():
-        # Check if the function requires a permission
-        permission = None
-        if function in config_data.get("ALL_PERMISSIONS", []):
-            permission = function
 
-        # Add the submenu option
+        permission = config_data["PERMISSION_MAP"].get(function)
+
         if permission is None or permissions.has_permission(logged_user, permission):
             add((function, frontend_name, permission))
+
 
     # Add a "Back" option to return to the main menu
     add(("back", "Back", None))
@@ -153,6 +153,21 @@ def menu_loop(auth, db, permissions):
                 if sub_function == "back":
                     break  # Return to the main menu
                 elif sub_function in globals():
-                    globals()[sub_function](db, logged_user, permissions)
+                    call_handler(
+                        globals()[sub_function],
+                        db=db,
+                        logged_user=logged_user,
+                        permissions=permissions,
+                        auth=auth
+                    )
                 else:
                     print(f"Function '{sub_function}' is not implemented.")
+
+
+def call_handler(func, **possible_args):
+    sig = inspect.signature(func)
+    accepted = {
+        name: value for name, value in possible_args.items()
+        if name in sig.parameters
+    }
+    return func(**accepted)

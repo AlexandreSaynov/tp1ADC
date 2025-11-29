@@ -2,3 +2,5 @@
 __pycache__/
 *.pyc
 vars/dev/permissions.json
+app/__pycache__/*.pyc
+vars/dev/chats.xml
