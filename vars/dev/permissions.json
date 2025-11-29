@@ -15,7 +15,11 @@
         },
         {
             "name": "user",
-            "permissions": []
+            "permissions": [
+                "user.view",
+                "group.view",
+                "event.create"
+            ]
         }
     ]
 }
