@@ -1,4 +1,6 @@
 from datetime import datetime
+from app.handlers._helper import helper_select_users
+
 def handle_create_event(db, logged_user, permissions):
     if not permissions.has_permission(logged_user, "event.create"):
         print("You do not have permission to create events.")
@@ -16,17 +18,10 @@ def handle_create_event(db, logged_user, permissions):
         print("❌ Invalid date format.")
         return
 
-    users = db.get_all_users()
-    print("\nSelect attendees (comma-separated IDs):")
-    for u in users:
-        print(f"[{u.id}] {u.username} | {u.email} | {u.access_level}")
+    attendee_ids = helper_select_users(db, allow_multiple=True, exclude_ids=set())
 
-    selected = input("Attendees: ").strip()
-    try:
-        attendee_ids = [int(x) for x in selected.split(",")]
-    except ValueError:
-        print("Invalid attendee list.")
-        return
+    if attendee_ids is None:
+        attendee_ids = []
 
     ok, event_or_msg = db.create_event(name, description, event_date)
     if not ok:
@@ -39,6 +34,7 @@ def handle_create_event(db, logged_user, permissions):
         db.add_user_to_event(uid, event.id)
 
     print(f"✔ Event '{event.event_name}' created with {len(attendee_ids)} attendees.")
+
 
 def handle_edit_event(db, event_id):
     event = db.get_event_by_id(event_id)
@@ -72,34 +68,18 @@ def handle_edit_event(db, event_id):
             return
 
     elif choice == "4":
-        print("\n=== Current Attendees ===")
+        print("\n=== Edit Attendees ===")
 
-        attendees = db.get_attendees_from_event(event_id)
-        ids_current = [a.id for a in attendees]
+        new_ids = helper_select_users(db, allow_multiple=True, exclude_ids=set())
 
-        for uid in ids_current:
-            user = db.get_user_by_id(uid)
-            print(f"[{user.id}] {user.username}")
-
-        print("\n=== All Users ===")
-        users = db.get_all_users()
-        for u in users:
-            mark = "*" if u.id in ids_current else " "
-            print(f"{mark} [{u.id}] {u.username}")
-
-        selected = input(
-            "\nEnter new attendee IDs (comma-separated): "
-        ).strip()
-
-        try:
-            new_ids = [int(x) for x in selected.split(",")]
-        except ValueError:
-            print("Invalid attendee list.")
+        if not new_ids:
+            print("No attendees selected.")
             return
 
         ok, msg = db.set_event_attendees(event_id, new_ids)
         print(msg)
         return
+
 
     elif choice == "5":
         confirm = input("Are you sure you want to delete this event? (y/n): ").lower()
