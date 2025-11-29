@@ -156,8 +156,8 @@ class DBController:
         group = self.session.query(Group).filter_by(id=group_id).first()
         if not group:
             return False, "Group not found."
-
-        self.session.query(UsersInGroups).filter_by(group_id=group_id).delete()
+        print(group_id)
+        users_in_groups = self.session.query(UsersInGroups).filter_by(group_id=group_id).delete()
 
         self.session.delete(group)
         self.session.commit()

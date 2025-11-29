@@ -5,9 +5,9 @@ from app.handlers.login import handle_login, handle_logout
 from app.handlers.register import handle_register_user
 from app.handlers.view_users import handle_view_all_users
 from app.handlers.create_group import handle_create_group
-from app.handlers.view_group import handle_view_all_groups, handle_manage_my_groups
+from app.handlers.view_group import handle_view_all_groups, handle_manage_my_groups, handle_view_group, handle_edit_group, handle_manage_group_members
 from app.handlers.roles import handle_create_role
-from app.handlers.events import handle_create_event, handle_view_my_events
+from app.handlers.events import handle_create_event, handle_view_my_events, handle_view_all_events, handle_edit_event
 from app.handlers.check_user import handle_view_profile
 import os
 import json

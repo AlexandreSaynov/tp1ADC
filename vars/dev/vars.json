@@ -7,7 +7,9 @@
     "group.view_all",
     "group.manage_own",
     "group.view",
-    "role.create"
+    "role.create",
+    "event.create",
+    "event.view_all"
 ],
     "ROLES_JSON_FILE" : "./vars/dev/permissions.json",
     "IMPLEMENTED_FEATURES" : {
@@ -20,9 +22,6 @@
             "handle_edit_event": "Edit Event",
             "handle_view_my_events": "View My Events"
         },
-        "Roles": {
-            "handle_create_role": "Create Role"
-        },
         "Users": {
             "handle_view_profile": "View Profile",
             "handle_logout": "Logout",
@@ -31,11 +30,12 @@
         },
         "Groups": {
             "handle_create_group": "Create Group",
+            "handle_manage_my_groups": "Manage My Groups"
+        },
+        "Administrative":{
+            "handle_create_role": "Create Role",
             "handle_view_all_groups": "View All Groups",
-            "handle_view_group": "View Group",
-            "handle_manage_my_groups": "Manage My Groups",
-            "handle_edit_group": "Edit Group",
-            "handle_manage_group_members": "Manage Group Members"
+            "handle_view_all_events": "View All Events"
         }
     },
     "PERMISSION_MAP": {
@@ -46,7 +46,8 @@
         "handle_manage_my_groups": "group.manage_own",
         "handle_view_group": "group.view",
         "handle_create_role": "role.create",
-        "handle_create_event": "event.create"
+        "handle_create_event": "event.create",
+        "handle_view_all_events": "event.view_all"
     }
 
 }

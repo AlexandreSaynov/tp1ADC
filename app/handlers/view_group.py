@@ -25,10 +25,10 @@ def handle_view_all_groups(db, logged_user, permissions):
         print("Invalid ID.")
         return
 
-    handle_view_group(db, group_id)
+    handle_view_group(db, group_id, logged_user,permissions)
 
 
-def handle_view_group(db, group_id, logged_user=None):
+def handle_view_group(db, group_id, logged_user=None,permissions=None):
     group = db.get_group_by_id(group_id)
     if not group:
         print("Group not found.")
@@ -54,11 +54,11 @@ def handle_view_group(db, group_id, logged_user=None):
 
     choice = input("Choose option: ").strip()
 
-    if choice == "1" and is_owner:
+    if choice == "1" and (is_owner or permissions.has_permission(logged_user, "group.edit_all")):
         handle_edit_group(db, group_id)
-    elif choice == "2" and is_owner:
+    elif choice == "2" and (is_owner or permissions.has_permission(logged_user, "group.edit_all")):
         handle_manage_group_members(db, group_id)
-    elif choice == "3" and is_owner:
+    elif choice == "3" and (is_owner or permissions.has_permission(logged_user, "group.edit_all")):
         confirm = input("Delete this group? (y/n): ").lower()
         if confirm == "y":
             ok, msg = db.delete_group(group_id)
@@ -99,8 +99,6 @@ def handle_manage_my_groups(db, logged_user):
 
     handle_view_group(db, group_id, logged_user)
 
-
-
 def handle_edit_group(db, group_id):
     group = db.get_group_by_id(group_id)
     if not group:
@@ -117,8 +115,6 @@ def handle_edit_group(db, group_id):
     group.group_name = new_name
     db.session.commit()
     print("Group name updated.")
-
-
 
 def handle_manage_group_members(db, group_id):
     group = db.get_group_by_id(group_id)

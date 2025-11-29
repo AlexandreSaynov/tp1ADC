@@ -10,7 +10,8 @@
                 "group.manage_own",
                 "group.view",
                 "role.create",
-                "event.create"
+                "event.create",
+                "event.view_all"
             ]
         },
         {
@@ -18,7 +19,9 @@
             "permissions": [
                 "user.view",
                 "group.view",
-                "event.create"
+                "event.create",
+                "group.view",
+                "group.manage_own"
             ]
         }
     ]
