@@ -19,24 +19,18 @@ def handle_create_chat(db, logged_user):
     print("\nSelect participants:")
     participant_ids = helper_select_users(db, allow_multiple=True, exclude_ids={logged_user.id})
 
-    if not participant_ids:
-        print("No participants selected.")
-        return
-
     participants = []
     for uid in participant_ids:
         user = db.get_user_by_id(uid)
         if user:
             participants.append(user.username)
 
-    if logged_user.username not in participants:
-        participants.append(logged_user.username)
+    create_chat_in_xml(name, participants, logged_user.username)
 
-    create_chat_in_xml(name, participants)
+    print(f"\nChat '{name}' created successfully!")
 
-    print(f"Chat '{name}' created successfully!")
 
-def create_chat_in_xml(name, participants):
+def create_chat_in_xml(name, participants, owner_username):
     if os.path.exists(CHATS_FILE):
         tree = ET.parse(CHATS_FILE)
         root = tree.getroot()
@@ -45,10 +39,9 @@ def create_chat_in_xml(name, participants):
         tree = ET.ElementTree(root)
 
     existing_ids = [
-        int(chat.get("id").replace("chat_", "")) 
+        int(chat.get("id").replace("chat_", ""))
         for chat in root.findall("chat")
     ]
-
     next_id = max(existing_ids, default=0) + 1
     chat_id = f"chat_{next_id:03}"
 
@@ -56,6 +49,10 @@ def create_chat_in_xml(name, participants):
     chat_elem.set("id", chat_id)
 
     ET.SubElement(chat_elem, "name").text = name
+    ET.SubElement(chat_elem, "owner").text = owner_username
+
+    if owner_username not in participants:
+        participants.append(owner_username)
 
     for p in participants:
         ET.SubElement(chat_elem, "participant").text = p
@@ -64,6 +61,7 @@ def create_chat_in_xml(name, participants):
     ET.SubElement(chat_elem, "latest_timestamp").text = now
 
     tree.write(CHATS_FILE)
+
 
 
 def load_user_chats(logged_user):
@@ -79,10 +77,13 @@ def load_user_chats(logged_user):
         if logged_user.username in participants:
             chat_id = chat.get("id")
             chat_name = chat.findtext("name", f"Chat {chat_id}")
+            owner = chat.findtext("owner", "")
+            
             user_chats.append({
                 "id": chat_id,
                 "name": chat_name,
-                "participants": participants
+                "participants": participants,
+                "owner": owner
             })
     
     return user_chats
