@@ -241,3 +241,40 @@ def chat_viewer(logged_user, chat_info):
 
 def chat_loop(logged_user):
     chat_selection_loop(logged_user)
+
+
+
+def delete_chat(chat_id):
+    if not os.path.exists(CHATS_FILE):
+        return False
+    
+    tree = ET.parse(CHATS_FILE)
+    root = tree.getroot()
+    chat_to_delete = None
+    
+    for chat in root.findall("chat"):
+        if chat.get("id") == chat_id:
+            chat_to_delete = chat
+            break
+    
+    if chat_to_delete is not None:
+        root.remove(chat_to_delete)
+        tree.write(CHATS_FILE)
+        return True
+    
+    return False
+
+
+def edit_chat_name(chat_id, new_name):
+    if not os.path.exists(CHATS_FILE):
+        return False
+    
+    tree = ET.parse(CHATS_FILE)
+    root = tree.getroot()
+    
+    for chat in root.findall("chat"):
+        if chat.get("id") == chat_id:
+            chat.find("name").text = new_name
+            tree.write(CHATS_FILE)
+            return True
+    return False
