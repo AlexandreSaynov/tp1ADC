@@ -113,7 +113,6 @@ def display_chat_menu(chats, page=0, page_size=5):
     return page, total_pages
 
 def chat_selection_loop(logged_user):
-    """Main chat selection loop."""
     chats = load_user_chats(logged_user)
     
     if not chats:
@@ -143,7 +142,6 @@ def chat_selection_loop(logged_user):
                 chat_viewer(logged_user, selected_chat)
 
 def load_chat_messages(chat_id):
-    """Load all messages from a specific chat."""
     if not os.path.exists(CHATS_FILE):
         return [], None
     
@@ -166,7 +164,6 @@ def load_chat_messages(chat_id):
     return [], None
 
 def display_chat(chat_info, messages):
-    """Display chat messages with timestamps."""
     print("\n" + "="*50)
     print(f"CHAT: {chat_info['name']}")
     print("="*50 + "\n")
@@ -181,7 +178,6 @@ def display_chat(chat_info, messages):
     print("Type 'M' to send a message, 'Q' to quit chat.")
 
 def add_message_to_chat(logged_user, chat_id, content):
-    """Add a new message to the chat XML file."""
     if not os.path.exists(CHATS_FILE):
         return False
     
@@ -196,7 +192,6 @@ def add_message_to_chat(logged_user, chat_id, content):
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             ET.SubElement(new_msg, "timestamp").text = timestamp
             
-            # Update latest_timestamp
             latest = chat.find("latest_timestamp")
             if latest is not None:
                 latest.text = timestamp
@@ -209,7 +204,6 @@ def add_message_to_chat(logged_user, chat_id, content):
     return False
 
 def chat_viewer(logged_user, chat_info):
-    """Display and manage an individual chat."""
     last_timestamp = None
     user_choice = None
     user_message = None
@@ -245,5 +239,4 @@ def chat_viewer(logged_user, chat_info):
     input_thread.join(0)
 
 def chat_loop(logged_user):
-    """Entry point for chat functionality."""
     chat_selection_loop(logged_user)
