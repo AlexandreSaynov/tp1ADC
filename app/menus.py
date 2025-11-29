@@ -80,6 +80,7 @@ def menu_loop(auth, db, permissions):
     logged_user = None
 
     while True:
+        os.system("cls")
         menu = build_dynamic_menu_from_features(logged_user, permissions)
         print_menu(menu, title="MAIN MENU")
 
