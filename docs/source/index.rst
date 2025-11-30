@@ -24,3 +24,4 @@ documentation for details.
    view_group
    roles
    register
+   login
