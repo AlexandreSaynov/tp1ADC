@@ -21,6 +21,7 @@ documentation for details.
    schema
    db_controller
    view_users
+   helper
    view_group
    roles
    register
