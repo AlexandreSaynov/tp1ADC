@@ -1,4 +1,28 @@
 def handle_view_all_groups(db, logged_user, permissions):
+    """
+    Display all groups in the system (admin-level view).
+
+    This function lists every group registered in the database, showing its
+    ID, name, owner, and current members. If the user has the required
+    permission, they may choose a group ID to open the detailed group
+    management menu via :func:`handle_view_group`.
+
+    Parameters
+    ----------
+    db : Database
+        The database controller used to retrieve groups, users, and ownership data.
+    logged_user : User
+        The authenticated user executing the action.
+    permissions : Permissions
+        The permissions manager used to validate access rights.
+
+    Notes
+    -----
+    - Requires the ``group.view_all`` permission.
+    - If no groups exist, a message is displayed.
+    - Invalid input returns immediately.
+    - Uses :func:`handle_view_group` for deeper group management.
+    """
     if not permissions.has_permission(logged_user, "group.view_all"):
         print("You do not have permission to view all groups.")
         return
@@ -29,6 +53,33 @@ def handle_view_all_groups(db, logged_user, permissions):
 
 
 def handle_view_group(db, group_id, logged_user=None,permissions=None):
+    """
+    Display detailed information about a single group.
+
+    This function shows the list of members, ownership, and group metadata.
+    If the user is the group owner or has ``group.edit_all`` permission,
+    editing options are shown. Editing operations may route to:
+
+    - :func:`handle_edit_group`
+    - :func:`handle_manage_group_members`
+
+    Parameters
+    ----------
+    db : Database
+        The database controller used for retrieving the group and member data.
+    group_id : int
+        The identifier of the group to display.
+    logged_user : User, optional
+        The currently logged-in user; used to determine ownership.
+    permissions : Permissions, optional
+        Permissions manager used to determine elevated access.
+
+    Notes
+    -----
+    - Displays owner-only options when appropriate.
+    - Input is validated before proceeding.
+    - Delete operations ask for confirmation.
+    """
     group = db.get_group_by_id(group_id)
     if not group:
         print("Group not found.")
@@ -69,6 +120,30 @@ def handle_view_group(db, group_id, logged_user=None,permissions=None):
         print("Invalid option or insufficient permissions.")
 
 def handle_manage_my_groups(db, logged_user):
+    """
+    Display all groups the logged user belongs to (owner or member).
+
+    The function aggregates:
+    - groups created by the user,
+    - groups where the user is a member,
+    removing duplicates.
+
+    The user may choose a group ID to open the detailed view using
+    :func:`handle_view_group`.
+
+    Parameters
+    ----------
+    db : Database
+        The database controller used to retrieve groups and members.
+    logged_user : User
+        The user performing the action.
+
+    Notes
+    -----
+    - If the user is not part of any group, the function returns immediately.
+    - Validates group selection input.
+    - Delegates deeper management to :func:`handle_view_group`.
+    """
     print("\n=== My Groups ===")
     groups_owner = db.get_groups_by_owner(logged_user.id)
     groups_member = db.get_groups_by_member(logged_user.id)
@@ -100,6 +175,22 @@ def handle_manage_my_groups(db, logged_user):
     handle_view_group(db, group_id, logged_user)
 
 def handle_edit_group(db, group_id):
+    """
+    Edit the name of an existing group.
+
+    Parameters
+    ----------
+    db : Database
+        Database controller used to load and modify the group.
+    group_id : int
+        Identifier of the group to modify.
+
+    Notes
+    -----
+    - The new name must not be empty.
+    - Automatically commits the change to the database.
+    - If the group does not exist, the function returns immediately.
+    """
     group = db.get_group_by_id(group_id)
     if not group:
         print("Group not found.")
@@ -117,6 +208,29 @@ def handle_edit_group(db, group_id):
     print("Group name updated.")
 
 def handle_manage_group_members(db, group_id):
+    """
+    Manage membership of a specified group.
+
+    This includes:
+    - Adding a user to the group,
+    - Removing a user from the group.
+
+    Parameters
+    ----------
+    db : Database
+        Database controller used to manage group membership relations.
+    group_id : int
+        Identifier of the group whose members will be managed.
+
+    Notes
+    -----
+    - Displays current members and all users.
+    - Marks existing members with ``*``.
+    - Input is validated before performing operations.
+    - Uses:
+        - ``db.add_user_to_group``  
+        - ``db.remove_user_from_group``
+    """
     group = db.get_group_by_id(group_id)
     if not group:
         print("Group not found.")

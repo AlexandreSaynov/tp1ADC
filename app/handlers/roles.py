@@ -1,5 +1,33 @@
 import json
 def handle_create_role(permissions, logged_user,ALL_PERMISSIONS,ROLES_JSON_FILE):
+    """
+    Create a new role and assign permissions to it.
+
+    This function allows an authorized user to create a new role by specifying
+    a role name and selecting permissions from a predefined list. The role is
+    then written into a JSON file that stores all existing roles and their
+    respective permissions.
+
+    Parameters
+    ----------
+    permissions : Permissions
+        The permissions manager used to verify whether the logged user may create roles.
+    logged_user : User
+        The currently authenticated user performing the operation.
+    ALL_PERMISSIONS : list of str
+        A list containing all available permission identifiers.
+    ROLES_JSON_FILE : str
+        Path to the JSON file where roles and their permissions are stored.
+
+    Notes
+    -----
+    - Requires the ``role.create`` permission.
+    - Role names must not be empty.
+    - Permissions are selected via comma-separated numeric indexes.
+    - Invalid selections will cause the function to cancel the operation.
+    - If the roles file does not exist or is corrupted, a new structure is created.
+    - Writes the updated role list to the JSON file using ``json.dump``.
+    """
     if not permissions.has_permission(logged_user, "role.create"):
         print("You do not have permission to create roles.")
         return
