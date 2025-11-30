@@ -11,15 +11,21 @@ copyright = '2025, Alexandre Saynov, Sergiy Iurchenko'
 author = 'Alexandre Saynov, Sergiy Iurchenko'
 release = '1.0'
 
+import sys
+sys.path.insert(0, '../')
+
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',  # se quiser suportar docstrings Google/NumPy style
+]
 
 templates_path = ['_templates']
 exclude_patterns = []
 
-
+autodoc_mock_imports = ["db", "db.db_controller", "db.schema", "sqlalchemy"]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

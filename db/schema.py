@@ -4,7 +4,9 @@ from sqlalchemy import (
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
 import json
-with open("./vars/dev/vars.json") as file:
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+with open(os.path.join(BASE_DIR, "vars/dev/vars.json")) as file:
     config_data = json.load(file)
 DB_URL = config_data["DB_URL"]
 

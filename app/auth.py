@@ -1,3 +1,19 @@
+"""
+auth_service.py
+-----------------   
+
+This module provides authentication utilities, including password hashing and
+a service class that communicates with the database layer to handle user
+registration, login, and session closure.
+
+The module exposes:
+- ``hash_password``: A helper function to securely hash user passwords.
+- ``AuthService``: A class responsible for managing authentication operations.
+
+Dependencies
+- ``hashlib``: Used for SHA-256 hashing.
+- ``DBController``: External dependency responsible for database operations.
+"""
 import hashlib
 from db.db_controller import DBController
 

@@ -1,7 +1,7 @@
-auth module
-===========
+Authentication
+==============
 
-.. automodule:: auth
+.. automodule:: app.auth
    :members:
    :show-inheritance:
    :undoc-members:

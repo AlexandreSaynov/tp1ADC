@@ -1,7 +1,7 @@
-menus module
-============
+Authentication
+==============
 
-.. automodule:: menus
+.. automodule:: app.auth
    :members:
    :show-inheritance:
    :undoc-members:
