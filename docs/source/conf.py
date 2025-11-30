@@ -25,7 +25,7 @@ extensions = [
 templates_path = ['_templates']
 exclude_patterns = []
 
-autodoc_mock_imports = ["db", "db.db_controller", "db.schema", "sqlalchemy"]
+autodoc_mock_imports = ["sqlalchemy"]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

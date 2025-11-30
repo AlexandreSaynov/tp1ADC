@@ -1,6 +1,6 @@
-Menu System API Reference
+Database Schema Definition
 ==============
-.. automodule:: app.menus
+.. automodule:: db.schema
    :members:
    :show-inheritance:
    :undoc-members:

@@ -37,11 +37,16 @@
  <a href="#A"><strong>A</strong></a>
  | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
+ | <a href="#U"><strong>U</strong></a>
  
 </div>
 <h2 id="A">A</h2>
@@ -96,6 +101,55 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="auth.html#app.auth.AuthService.close">close() (app.auth.AuthService method)</a>
 </li>
+      <li><a href="schema.html#db.schema.Group.created_at">created_at (db.schema.Group attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    db.schema
+
+      <ul>
+        <li><a href="schema.html#module-db.schema">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schema.html#db.schema.Event.description">description (db.schema.Event attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schema.html#db.schema.Event">Event (class in db.schema)</a>
+</li>
+      <li><a href="schema.html#db.schema.Event.event_name">event_name (db.schema.Event attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schema.html#db.schema.Event.event_time">event_time (db.schema.Event attribute)</a>
+</li>
+      <li><a href="schema.html#db.schema.User.events">events (db.schema.User attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schema.html#db.schema.Group">Group (class in db.schema)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schema.html#db.schema.Group.group_name">group_name (db.schema.Group attribute)</a>
+</li>
+      <li><a href="schema.html#db.schema.User.groups">groups (db.schema.User attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -134,6 +188,20 @@
 </li>
         <li><a href="permissions.html#module-app.permissions">app.permissions</a>
 </li>
+        <li><a href="schema.html#module-db.schema">db.schema</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schema.html#db.schema.Event.owner_id">owner_id (db.schema.Event attribute)</a>
+
+      <ul>
+        <li><a href="schema.html#db.schema.Group.owner_id">(db.schema.Group attribute)</a>
+</li>
       </ul></li>
   </ul></td>
 </tr></table>
@@ -154,6 +222,34 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="auth.html#app.auth.AuthService.register_user">register_user() (app.auth.AuthService method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schema.html#db.schema.Event.Relationships">Relationships (db.schema.Event attribute)</a>
+
+      <ul>
+        <li><a href="schema.html#db.schema.Group.Relationships">(db.schema.Group attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schema.html#db.schema.User">User (class in db.schema)</a>
+</li>
+      <li><a href="schema.html#db.schema.Event.users">users (db.schema.Event attribute)</a>, <a href="schema.html#id0">[1]</a>
+
+      <ul>
+        <li><a href="schema.html#db.schema.Group.users">(db.schema.Group attribute)</a>, <a href="schema.html#id1">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="schema.html#db.schema.UsersAttendingEvents">UsersAttendingEvents (class in db.schema)</a>
+</li>
+      <li><a href="schema.html#db.schema.UsersInGroups">UsersInGroups (class in db.schema)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -190,6 +286,7 @@
 <li class="toctree-l1"><a class="reference internal" href="auth.html">Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="menus.html">Menu System API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="permissions.html">Permissions Manager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schema.html">Database Schema Definition</a></li>
 </ul>
 
 <div class="relations">
