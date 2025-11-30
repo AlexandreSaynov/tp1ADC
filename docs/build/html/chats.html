@@ -1,0 +1,662 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Check User Handler" href="check_user.html"><link rel="prev" title="User Editing Handler" href="edit_users.html">
+
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
+        <title>Chats Handler - Macrohard Teams 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #3a7bd5;
+  --color-brand-content: #3a7bd5;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #6ca0ff;
+  --color-brand-content: #6ca0ff;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #6ca0ff;
+  --color-brand-content: #6ca0ff;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Macrohard Teams 1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">Macrohard Teams 1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Main Functions</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="auth.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="menus.html">Menu System API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permissions.html">Permissions Manager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="view_users.html">View Users Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="view_group.html">View Group Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roles.html">Roles Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="login.html">Login Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="events.html">Events Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edit_users.html">User Editing Handler</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Chats Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="check_user.html">Check User Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="create_group.html">Create Group Handler</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Database Functions and Definition</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="schema.html">Database Schema Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="db_controller.html">Database Controller API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="init_db.html">Database Initializer</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Helper Functions</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="helper.html">Select all users helper</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/chats.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-app.handlers.chats">
+<span id="chats-handler"></span><h1>Chats Handler<a class="headerlink" href="#module-app.handlers.chats" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.add_message_to_chat">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">add_message_to_chat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logged_user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#add_message_to_chat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.add_message_to_chat" title="Link to this definition">¶</a></dt>
+<dd><p>Append a new message to a chat.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>logged_user</strong> (<a class="reference internal" href="schema.html#db.schema.User" title="db.schema.User"><em>User</em></a>) – User sending the message.</p></li>
+<li><p><strong>chat_id</strong> (<em>str</em>) – Chat identifier.</p></li>
+<li><p><strong>content</strong> (<em>str</em>) – Message content.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the message was added, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.add_participant_to_chat">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">add_participant_to_chat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#add_participant_to_chat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.add_participant_to_chat" title="Link to this definition">¶</a></dt>
+<dd><p>Add a participant to a chat.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>str</em>) – Chat identifier.</p></li>
+<li><p><strong>username</strong> (<em>str</em>) – Username to add.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the participant was added, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.chat_loop">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">chat_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logged_user</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#chat_loop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.chat_loop" title="Link to this definition">¶</a></dt>
+<dd><p>Entry point for the chat menu system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>logged_user</strong> (<a class="reference internal" href="schema.html#db.schema.User" title="db.schema.User"><em>User</em></a>) – The active user.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.chat_selection_loop">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">chat_selection_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logged_user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#chat_selection_loop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.chat_selection_loop" title="Link to this definition">¶</a></dt>
+<dd><p>Main loop allowing a user to browse and select chats.</p>
+<p>Enables pagination, chat entry, and—if the user is the owner—
+access to chat management options.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>logged_user</strong> (<a class="reference internal" href="schema.html#db.schema.User" title="db.schema.User"><em>User</em></a>) – The active user.</p></li>
+<li><p><strong>db</strong> (<em>Database</em>) – Database interface used when modifying chats.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.chat_viewer">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">chat_viewer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logged_user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chat_info</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#chat_viewer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.chat_viewer" title="Link to this definition">¶</a></dt>
+<dd><p>Interactive chat viewer with live message reloading.</p>
+<p>Runs a loop that refreshes chat messages on a timer while a
+background thread collects user input for sending messages or
+quitting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>logged_user</strong> (<a class="reference internal" href="schema.html#db.schema.User" title="db.schema.User"><em>User</em></a>) – User viewing the chat.</p></li>
+<li><p><strong>chat_info</strong> (<em>dict</em>) – Metadata for the selected chat.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.create_chat_in_xml">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">create_chat_in_xml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">participants</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">owner_username</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#create_chat_in_xml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.create_chat_in_xml" title="Link to this definition">¶</a></dt>
+<dd><p>Create a chat entry inside the XML chats file.</p>
+<p>Generates a new chat ID, assigns the owner, adds participants, and
+records the initial timestamp. Creates the XML structure if missing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the chat.</p></li>
+<li><p><strong>participants</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of usernames participating in the chat.</p></li>
+<li><p><strong>owner_username</strong> (<em>str</em>) – Username of the chat owner.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The owner is always added as a participant if not already included.</p></li>
+<li><p>The XML file is created if it does not exist.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.delete_chat">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">delete_chat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#delete_chat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.delete_chat" title="Link to this definition">¶</a></dt>
+<dd><p>Delete a chat from the XML file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>chat_id</strong> (<em>str</em>) – Chat identifier.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if deleted, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.display_chat">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">display_chat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">messages</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#display_chat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.display_chat" title="Link to this definition">¶</a></dt>
+<dd><p>Render a chat and its messages to the console.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_info</strong> (<em>dict</em>) – Chat metadata including name and participants.</p></li>
+<li><p><strong>messages</strong> (<em>list</em><em>[</em><em>dict</em><em>]</em>) – List of message dictionaries to display.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.display_chat_menu">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">display_chat_menu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#display_chat_menu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.display_chat_menu" title="Link to this definition">¶</a></dt>
+<dd><p>Display a paginated list of available chats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chats</strong> (<em>list</em><em>[</em><em>dict</em><em>]</em>) – List of chat metadata dictionaries.</p></li>
+<li><p><strong>page</strong> (<em>int</em><em>, </em><em>optional</em>) – Current page index. Defaults to 0.</p></li>
+<li><p><strong>page_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of chats shown per page. Defaults to 5.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple <code class="docutils literal notranslate"><span class="pre">(page,</span> <span class="pre">total_pages)</span></code> after rendering the menu.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.edit_chat_members">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">edit_chat_members</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logged_user</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#edit_chat_members"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.edit_chat_members" title="Link to this definition">¶</a></dt>
+<dd><p>Manage participants of a chat.</p>
+<p>Allows adding and removing participants, excluding the owner from
+removal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_info</strong> (<em>dict</em>) – Chat metadata including participants.</p></li>
+<li><p><strong>db</strong> (<em>Database</em>) – Database interface for user lookups.</p></li>
+<li><p><strong>logged_user</strong> (<a class="reference internal" href="schema.html#db.schema.User" title="db.schema.User"><em>User</em></a>) – User managing the chat.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.edit_chat_name">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">edit_chat_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#edit_chat_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.edit_chat_name" title="Link to this definition">¶</a></dt>
+<dd><p>Update the name of a chat.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>str</em>) – Chat identifier.</p></li>
+<li><p><strong>new_name</strong> (<em>str</em>) – New chat name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if updated successfully, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.handle_create_chat">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">handle_create_chat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logged_user</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#handle_create_chat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.handle_create_chat" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new chat and store it in the chats XML file.</p>
+<p>Prompts the user for a chat name and participant selection, then
+creates the chat via <a class="reference internal" href="#app.handlers.chats.create_chat_in_xml" title="app.handlers.chats.create_chat_in_xml"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_chat_in_xml()</span></code></a>. The logged user is
+always included as a participant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db</strong> (<em>Database</em>) – Database interface used to fetch user information.</p></li>
+<li><p><strong>logged_user</strong> (<a class="reference internal" href="schema.html#db.schema.User" title="db.schema.User"><em>User</em></a>) – The user creating the chat.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Empty chat names are rejected.</p></li>
+<li><p>Participant selection uses <code class="xref py py-func docutils literal notranslate"><span class="pre">helper_select_users()</span></code>.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.load_chat_messages">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">load_chat_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#load_chat_messages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.load_chat_messages" title="Link to this definition">¶</a></dt>
+<dd><p>Load all messages for a given chat.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>chat_id</strong> (<em>str</em>) – Identifier of the chat to load messages from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(messages,</span> <span class="pre">latest_timestamp)</span></code> where <code class="docutils literal notranslate"><span class="pre">messages</span></code> is a list of
+message dictionaries.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.load_user_chats">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">load_user_chats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logged_user</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#load_user_chats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.load_user_chats" title="Link to this definition">¶</a></dt>
+<dd><p>Load all chats the logged user participates in.</p>
+<p>Reads the chats XML file and collects chat metadata for any chat
+where the user’s username appears in the participant list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>logged_user</strong> (<a class="reference internal" href="schema.html#db.schema.User" title="db.schema.User"><em>User</em></a>) – The current authenticated user.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of chat dictionaries containing <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code>,
+<code class="docutils literal notranslate"><span class="pre">participants</span></code>, and <code class="docutils literal notranslate"><span class="pre">owner</span></code> keys.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.manage_chat">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">manage_chat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logged_user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chat_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#manage_chat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.manage_chat" title="Link to this definition">¶</a></dt>
+<dd><p>Manage chat settings and participants.</p>
+<p>Only the chat owner may rename, modify membership, or delete the chat.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>logged_user</strong> (<a class="reference internal" href="schema.html#db.schema.User" title="db.schema.User"><em>User</em></a>) – The user performing the action.</p></li>
+<li><p><strong>chat_info</strong> (<em>dict</em>) – Chat metadata structure.</p></li>
+<li><p><strong>db</strong> (<em>Database</em>) – Database interface used for user lookup.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.remove_participant_from_chat">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">remove_participant_from_chat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#remove_participant_from_chat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.remove_participant_from_chat" title="Link to this definition">¶</a></dt>
+<dd><p>Remove a participant from a chat.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chat_id</strong> (<em>str</em>) – Chat identifier.</p></li>
+<li><p><strong>username</strong> (<em>str</em>) – Username to remove.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if removed successfully, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.handlers.chats.write_xml">
+<span class="sig-prename descclassname"><span class="pre">app.handlers.chats.</span></span><span class="sig-name descname"><span class="pre">write_xml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./vars/dev/chats.xml'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/handlers/chats.html#write_xml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.handlers.chats.write_xml" title="Link to this definition">¶</a></dt>
+<dd><p>Write an XML tree to file with indentation.</p>
+<p>Supports both Python &lt;3.9 (manual indentation) and Python ≥3.9
+using <code class="xref py py-func docutils literal notranslate"><span class="pre">xml.etree.ElementTree.indent()</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tree</strong> (<em>ElementTree</em>) – Parsed XML tree to write.</p></li>
+<li><p><strong>file_path</strong> (<em>str</em><em>, </em><em>optional</em>) – Destination path for the XML file. Defaults to <code class="docutils literal notranslate"><span class="pre">CHATS_FILE</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="check_user.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Check User Handler</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="edit_users.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">User Editing Handler</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, Alexandre Saynov, Sergiy Iurchenko
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Chats Handler</a><ul>
+<li><a class="reference internal" href="#app.handlers.chats.add_message_to_chat"><code class="docutils literal notranslate"><span class="pre">add_message_to_chat()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.add_participant_to_chat"><code class="docutils literal notranslate"><span class="pre">add_participant_to_chat()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.chat_loop"><code class="docutils literal notranslate"><span class="pre">chat_loop()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.chat_selection_loop"><code class="docutils literal notranslate"><span class="pre">chat_selection_loop()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.chat_viewer"><code class="docutils literal notranslate"><span class="pre">chat_viewer()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.create_chat_in_xml"><code class="docutils literal notranslate"><span class="pre">create_chat_in_xml()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.delete_chat"><code class="docutils literal notranslate"><span class="pre">delete_chat()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.display_chat"><code class="docutils literal notranslate"><span class="pre">display_chat()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.display_chat_menu"><code class="docutils literal notranslate"><span class="pre">display_chat_menu()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.edit_chat_members"><code class="docutils literal notranslate"><span class="pre">edit_chat_members()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.edit_chat_name"><code class="docutils literal notranslate"><span class="pre">edit_chat_name()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.handle_create_chat"><code class="docutils literal notranslate"><span class="pre">handle_create_chat()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.load_chat_messages"><code class="docutils literal notranslate"><span class="pre">load_chat_messages()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.load_user_chats"><code class="docutils literal notranslate"><span class="pre">load_user_chats()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.manage_chat"><code class="docutils literal notranslate"><span class="pre">manage_chat()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.remove_participant_from_chat"><code class="docutils literal notranslate"><span class="pre">remove_participant_from_chat()</span></code></a></li>
+<li><a class="reference internal" href="#app.handlers.chats.write_xml"><code class="docutils literal notranslate"><span class="pre">write_xml()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>
