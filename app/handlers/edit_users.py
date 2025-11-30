@@ -1,4 +1,32 @@
-def handle_edit_user(db, auth, user_id,permission):
+def handle_edit_user(db, auth, user_id, permission):
+    """
+    Edit properties of an existing user.
+
+    Displays a menu allowing changes to username, email, password, or access
+    level (role). Available options depend on the caller's permissions.
+    After collecting updated fields, the function applies changes through
+    the database and reports success or failure.
+
+    Parameters
+    ----------
+    db : Database
+        Database interface used to retrieve and update user records.
+    auth : Auth
+        Authentication handler used for password hashing.
+    user_id : int
+        ID of the user to edit.
+    permission : Permissions
+        Permission manager used to verify whether the caller can modify
+        the user's access level.
+
+    Notes
+    -----
+    - If the user does not exist, the function prints a message and returns.
+    - The "Change role" option only appears if the caller has
+      ``user.edit_role`` permission.
+    - Passwords are hashed before being stored.
+    - Invalid menu choices result in no changes being applied.
+    """
     user = db.get_user_by_id(user_id)
     if not user:
         print("User not found.")

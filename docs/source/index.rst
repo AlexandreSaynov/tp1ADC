@@ -26,3 +26,4 @@ documentation for details.
    roles
    register
    login
+   edit_users
