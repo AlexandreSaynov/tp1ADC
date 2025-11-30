@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Database Controller API Reference &#8212; Macrohard Teams 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Database Schema Definition" href="schema.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="database-controller-api-reference">
+<h1>Database Controller API Reference<a class="headerlink" href="#database-controller-api-reference" title="Link to this heading">¶</a></h1>
+<p id="module-db.db_controller">Database controller providing high-level CRUD operations for users, groups,
+and events. This module abstracts SQLAlchemy interactions and exposes a
+simple API for authentication systems, group management, and event handling.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="db.db_controller.DBController">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">db.db_controller.</span></span><span class="sig-name descname"><span class="pre">DBController</span></span><a class="headerlink" href="#db.db_controller.DBController" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>High-level interface to the application’s database, wrapping SQLAlchemy
+models and sessions to perform user, group, and event operations.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.add_user">
+<span class="sig-name descname"><span class="pre">add_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'user'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.add_user" title="Link to this definition">¶</a></dt>
+<dd><p>Create and persist a new user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>username</strong> (<em>str</em>) – The desired username.</p></li>
+<li><p><strong>email</strong> (<em>str</em>) – User’s email address.</p></li>
+<li><p><strong>password_hash</strong> (<em>str</em>) – Pre-hashed password.</p></li>
+<li><p><strong>access_level</strong> (<em>str</em>) – Permission role (default: <code class="docutils literal notranslate"><span class="pre">&quot;user&quot;</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(True,</span> <span class="pre">User)</span></code> on success, otherwise <code class="docutils literal notranslate"><span class="pre">(False,</span> <span class="pre">message)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.add_user_to_event">
+<span class="sig-name descname"><span class="pre">add_user_to_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.add_user_to_event" title="Link to this definition">¶</a></dt>
+<dd><p>Add a user as an event attendee.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<em>int</em>) – User identifier.</p></li>
+<li><p><strong>event_id</strong> (<em>int</em>) – Event identifier.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(True,</span> <span class="pre">message)</span></code> or <code class="docutils literal notranslate"><span class="pre">(False,</span> <span class="pre">message)</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.add_user_to_group">
+<span class="sig-name descname"><span class="pre">add_user_to_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.add_user_to_group" title="Link to this definition">¶</a></dt>
+<dd><p>Add a user to a group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<em>int</em>) – User identifier.</p></li>
+<li><p><strong>group_id</strong> (<em>int</em>) – Group identifier.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(True,</span> <span class="pre">message)</span></code> or <code class="docutils literal notranslate"><span class="pre">(False,</span> <span class="pre">message)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.close" title="Link to this definition">¶</a></dt>
+<dd><p>Close the active database session.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.create_event">
+<span class="sig-name descname"><span class="pre">create_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.create_event" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_name</strong> (<em>str</em>) – Title of the event.</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – Event description.</p></li>
+<li><p><strong>event_time</strong> (<em>datetime</em>) – Scheduled time.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(True,</span> <span class="pre">Event)</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.create_group">
+<span class="sig-name descname"><span class="pre">create_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">owner_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.create_group" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group_name</strong> (<em>str</em>) – Name of the group.</p></li>
+<li><p><strong>owner_id</strong> (<em>int</em>) – Optional ID of the group’s owner.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(True,</span> <span class="pre">Group)</span></code> or <code class="docutils literal notranslate"><span class="pre">(False,</span> <span class="pre">message)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.delete_event">
+<span class="sig-name descname"><span class="pre">delete_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.delete_event" title="Link to this definition">¶</a></dt>
+<dd><p>Delete an event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>event_id</strong> (<em>int</em>) – Event identifier.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(True,</span> <span class="pre">message)</span></code> or <code class="docutils literal notranslate"><span class="pre">(False,</span> <span class="pre">message)</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.delete_group">
+<span class="sig-name descname"><span class="pre">delete_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.delete_group" title="Link to this definition">¶</a></dt>
+<dd><p>Delete a group and its membership links.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>group_id</strong> (<em>int</em>) – Group identifier.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(True,</span> <span class="pre">message)</span></code> or <code class="docutils literal notranslate"><span class="pre">(False,</span> <span class="pre">message)</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.get_all_events">
+<span class="sig-name descname"><span class="pre">get_all_events</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.get_all_events" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve all events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of events.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.get_all_groups">
+<span class="sig-name descname"><span class="pre">get_all_groups</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.get_all_groups" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve all groups.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of groups.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.get_all_users">
+<span class="sig-name descname"><span class="pre">get_all_users</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.get_all_users" title="Link to this definition">¶</a></dt>
+<dd><p>Get all user entries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of all <code class="xref py py-class docutils literal notranslate"><span class="pre">User</span></code> objects.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.get_attendees_from_event">
+<span class="sig-name descname"><span class="pre">get_attendees_from_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.get_attendees_from_event" title="Link to this definition">¶</a></dt>
+<dd><p>Get all users attending a specific event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>event_id</strong> (<em>int</em>) – Event identifier.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of attendees or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.get_event_by_id">
+<span class="sig-name descname"><span class="pre">get_event_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.get_event_by_id" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve an event by ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>event_id</strong> (<em>int</em>) – Event identifier.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Event object or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.get_events_from_user">
+<span class="sig-name descname"><span class="pre">get_events_from_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.get_events_from_user" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve events associated with a user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<em>int</em>) – User identifier.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of events or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.get_group_by_id">
+<span class="sig-name descname"><span class="pre">get_group_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.get_group_by_id" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve a group by ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>group_id</strong> (<em>int</em>) – Group identifier.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Group object or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.get_groups_by_member">
+<span class="sig-name descname"><span class="pre">get_groups_by_member</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.get_groups_by_member" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve groups a user is a member of.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<em>int</em>) – User identifier.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of groups.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.get_groups_by_owner">
+<span class="sig-name descname"><span class="pre">get_groups_by_owner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">owner_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.get_groups_by_owner" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve groups that belong to a specific owner.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>owner_id</strong> (<em>int</em>) – Owner identifier.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of groups.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.get_groups_from_user">
+<span class="sig-name descname"><span class="pre">get_groups_from_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.get_groups_from_user" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve groups that a user belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<em>int</em>) – User identifier.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of groups or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.get_user_by_email">
+<span class="sig-name descname"><span class="pre">get_user_by_email</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.get_user_by_email" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve a user by email.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>email</strong> (<em>str</em>) – Email address.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>User object or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.get_user_by_id">
+<span class="sig-name descname"><span class="pre">get_user_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.get_user_by_id" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve a user by database ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> (<em>int</em>) – User ID.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>User object or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.get_user_by_username">
+<span class="sig-name descname"><span class="pre">get_user_by_username</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.get_user_by_username" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve a user by username.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>username</strong> (<em>str</em>) – Username to query.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>User object or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.get_users_from_group">
+<span class="sig-name descname"><span class="pre">get_users_from_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.get_users_from_group" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve users that belong to a specific group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>group_id</strong> (<em>int</em>) – Group identifier.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of users or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.remove_user_from_group">
+<span class="sig-name descname"><span class="pre">remove_user_from_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.remove_user_from_group" title="Link to this definition">¶</a></dt>
+<dd><p>Remove a user from a group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<em>int</em>) – User identifier.</p></li>
+<li><p><strong>group_id</strong> (<em>int</em>) – Group identifier.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(True,</span> <span class="pre">message)</span></code> or <code class="docutils literal notranslate"><span class="pre">(False,</span> <span class="pre">message)</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.set_event_attendees">
+<span class="sig-name descname"><span class="pre">set_event_attendees</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_attendee_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.set_event_attendees" title="Link to this definition">¶</a></dt>
+<dd><p>Replace all attendees of an event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_id</strong> (<em>int</em>) – Event identifier.</p></li>
+<li><p><strong>new_attendee_ids</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – User IDs to assign.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(True,</span> <span class="pre">message)</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.update_event">
+<span class="sig-name descname"><span class="pre">update_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.update_event" title="Link to this definition">¶</a></dt>
+<dd><p>Update an event’s fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_id</strong> (<em>int</em>) – Event identifier.</p></li>
+<li><p><strong>updates</strong> (<em>dict</em>) – Field/value mappings.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(True,</span> <span class="pre">event)</span></code> or <code class="docutils literal notranslate"><span class="pre">(False,</span> <span class="pre">message)</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.update_group_name">
+<span class="sig-name descname"><span class="pre">update_group_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.update_group_name" title="Link to this definition">¶</a></dt>
+<dd><p>Rename a group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group_id</strong> (<em>int</em>) – Group identifier.</p></li>
+<li><p><strong>new_name</strong> (<em>str</em>) – New group name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(True,</span> <span class="pre">group)</span></code> or <code class="docutils literal notranslate"><span class="pre">(False,</span> <span class="pre">message)</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="db.db_controller.DBController.update_user">
+<span class="sig-name descname"><span class="pre">update_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#db.db_controller.DBController.update_user" title="Link to this definition">¶</a></dt>
+<dd><p>Update fields of an existing user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_id</strong> (<em>int</em>) – User ID.</p></li>
+<li><p><strong>updates</strong> (<em>dict</em>) – Mapping of field names to new values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(True,</span> <span class="pre">user)</span></code> on success, otherwise <code class="docutils literal notranslate"><span class="pre">(False,</span> <span class="pre">message)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Macrohard Teams</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="auth.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="menus.html">Menu System API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permissions.html">Permissions Manager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schema.html">Database Schema Definition</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Database Controller API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#db.db_controller.DBController"><code class="docutils literal notranslate"><span class="pre">DBController</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.add_user"><code class="docutils literal notranslate"><span class="pre">DBController.add_user()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.add_user_to_event"><code class="docutils literal notranslate"><span class="pre">DBController.add_user_to_event()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.add_user_to_group"><code class="docutils literal notranslate"><span class="pre">DBController.add_user_to_group()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.close"><code class="docutils literal notranslate"><span class="pre">DBController.close()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.create_event"><code class="docutils literal notranslate"><span class="pre">DBController.create_event()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.create_group"><code class="docutils literal notranslate"><span class="pre">DBController.create_group()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.delete_event"><code class="docutils literal notranslate"><span class="pre">DBController.delete_event()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.delete_group"><code class="docutils literal notranslate"><span class="pre">DBController.delete_group()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.get_all_events"><code class="docutils literal notranslate"><span class="pre">DBController.get_all_events()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.get_all_groups"><code class="docutils literal notranslate"><span class="pre">DBController.get_all_groups()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.get_all_users"><code class="docutils literal notranslate"><span class="pre">DBController.get_all_users()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.get_attendees_from_event"><code class="docutils literal notranslate"><span class="pre">DBController.get_attendees_from_event()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.get_event_by_id"><code class="docutils literal notranslate"><span class="pre">DBController.get_event_by_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.get_events_from_user"><code class="docutils literal notranslate"><span class="pre">DBController.get_events_from_user()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.get_group_by_id"><code class="docutils literal notranslate"><span class="pre">DBController.get_group_by_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.get_groups_by_member"><code class="docutils literal notranslate"><span class="pre">DBController.get_groups_by_member()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.get_groups_by_owner"><code class="docutils literal notranslate"><span class="pre">DBController.get_groups_by_owner()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.get_groups_from_user"><code class="docutils literal notranslate"><span class="pre">DBController.get_groups_from_user()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.get_user_by_email"><code class="docutils literal notranslate"><span class="pre">DBController.get_user_by_email()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.get_user_by_id"><code class="docutils literal notranslate"><span class="pre">DBController.get_user_by_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.get_user_by_username"><code class="docutils literal notranslate"><span class="pre">DBController.get_user_by_username()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.get_users_from_group"><code class="docutils literal notranslate"><span class="pre">DBController.get_users_from_group()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.remove_user_from_group"><code class="docutils literal notranslate"><span class="pre">DBController.remove_user_from_group()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.set_event_attendees"><code class="docutils literal notranslate"><span class="pre">DBController.set_event_attendees()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.update_event"><code class="docutils literal notranslate"><span class="pre">DBController.update_event()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.update_group_name"><code class="docutils literal notranslate"><span class="pre">DBController.update_group_name()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#db.db_controller.DBController.update_user"><code class="docutils literal notranslate"><span class="pre">DBController.update_user()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="schema.html" title="previous chapter">Database Schema Definition</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Alexandre Saynov, Sergiy Iurchenko.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/db_controller.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

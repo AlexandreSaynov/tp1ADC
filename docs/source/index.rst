@@ -19,3 +19,4 @@ documentation for details.
    menus
    permissions
    schema
+   db_controller
