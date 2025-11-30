@@ -1,4 +1,4 @@
-# TP1 – Sistema de Gestão de Usuários, Grupos e Eventos
+# TP1 – Macrohard Teams - Software de gestão de utilizadores, chats, grupos e eventos
 
 Este é um projeto de console em Python que implementa um sistema de gestão de utilizadores, grupos e eventos, com autenticação, controle de permissões e interação via menu dinâmico.
 
@@ -43,14 +43,14 @@ tp1/
 ## Funcionalidades
 
 1. **Autenticação e Autorização**
-   - Registro de usuários, incluindo criação automática do root se nenhum usuário existir.
+   - Registro de utilizadores, incluindo criação automática do root se nenhum usuário existir.
    - Login seguro com hash SHA-256.
    - Controle de permissões baseado em roles definidas no `permissions.json`.
 
-2. **Gestão de Usuários**
-   - Visualização de todos os usuários.
+2. **Gestão de Utilizadores**
+   - Visualização de todos os utilizadores.
    - Edição de dados do usuário (username, email, senha e role).
-   - Diferenciação de usuários por roles: root e user.
+   - Diferenciação de utilizadores por roles: root e user.
 
 3. **Gestão de Grupos**
    - Criação de grupos com um usuário dono/owner.
