@@ -26,3 +26,4 @@ documentation for details.
    roles
    register
    login
+   events

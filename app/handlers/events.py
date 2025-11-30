@@ -2,6 +2,34 @@ from datetime import datetime
 from app.handlers._helper import helper_select_users
 
 def handle_create_event(db, logged_user, permissions):
+    """
+    Create a new event through console input.
+
+    This function guides the user through the process of creating a new event.  
+    It validates permissions, collects event details, parses the date/time,  
+    selects attendees, and finally delegates event creation to the database layer.
+
+    Parameters
+    ----------
+    db : DBController
+        The database controller responsible for event and user operations.
+
+    logged_user : User
+        The user currently logged in. Used for permission validation.
+
+    permissions : Permissions
+        Permission manager used to verify whether the user is allowed
+        to create events.
+
+    Notes
+    -----
+    - If the user lacks the ``event.create`` permission, the function exits immediately.
+    - Event date/time must follow the format ``YYYY-MM-DD HH:MM``.
+    - Attendees are selected via :func:`helper_select_users`.
+    - If the date format is invalid, no event is created.
+    - Attendee selection may return an empty list, which is allowed.
+    - Actual creation occurs through :meth:`DBController.create_event`.
+    """
     if not permissions.has_permission(logged_user, "event.create"):
         print("You do not have permission to create events.")
         return
@@ -37,6 +65,30 @@ def handle_create_event(db, logged_user, permissions):
 
 
 def handle_edit_event(db, event_id):
+    """
+    Display an interactive menu for editing an existing event.
+
+    This function loads the event by ID and presents several editing options:
+    updating the event name, description, date/time, attendee list, or deleting
+    the event entirely.
+
+    Parameters
+    ----------
+    db : DBController
+        Database controller used to access, update, and delete events.
+
+    event_id : int
+        The unique ID of the event to edit.
+
+    Notes
+    -----
+    - If the event does not exist, the function terminates immediately.
+    - Date parsing requires the ``YYYY-MM-DD HH:MM`` format.
+    - Editing attendees uses :func:`helper_select_users`.
+    - Attendee updates are applied using :meth:`DBController.set_event_attendees`.
+    - Event deletion requires confirmation from the user.
+    - Updates are committed using :meth:`DBController.update_event`.
+    """
     event = db.get_event_by_id(event_id)
     if not event:
         print("Event not found.")
@@ -105,6 +157,28 @@ def handle_edit_event(db, event_id):
             print(f"Update failed: {result}")
 
 def handle_view_my_events(db, logged_user):
+    """
+    Display all events associated with the logged-in user.
+
+    This function shows a list of events the user is attending or owning,
+    along with attendee details. The user may optionally select an event to edit.
+
+    Parameters
+    ----------
+    db : DBController
+        Database controller used to retrieve events and attendees.
+
+    logged_user : User
+        The user whose events will be displayed.
+
+    Notes
+    -----
+    - If the user has no events, a message is shown and the function exits.
+    - Each event lists its name, date, description, and attendee list.
+    - The user may enter an event ID to access :func:`handle_edit_event`.
+    - Only events belonging to the user can be edited.
+    - Invalid or non-numeric IDs are rejected.
+    """
     print("\n=== All Events ===")
 
     events = db.get_events_from_user(logged_user.id)
@@ -143,6 +217,28 @@ def handle_view_my_events(db, logged_user):
 
 
 def handle_view_all_events(db, logged_user):
+    """
+    Display every event in the system.
+
+    This function lists all registered events, regardless of ownership,
+    and allows the user to select one for editing, assuming permissions.
+
+    Parameters
+    ----------
+    db : DBController
+        The database controller responsible for fetching events and attendees.
+
+    logged_user : User
+        The user attempting to view or edit system-wide events.
+
+    Notes
+    -----
+    - If no events exist, the function exits immediately.
+    - For each event, the list displays name, date/time, description, 
+      and attendees.
+    - Selecting an event ID forwards the user to :func:`handle_edit_event`.
+    - Invalid IDs or those outside the available list are rejected.
+    """
     print("\n=== All Events ===")
 
     events = db.get_all_events()
