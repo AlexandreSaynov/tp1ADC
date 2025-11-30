@@ -28,10 +28,7 @@ documentation for details.
    login
    events
    edit_users
-<<<<<<< HEAD
    init_db
-=======
    chats
    check_user
    create_group
->>>>>>> cdf63c027fd670345059cb46543fbe387edc0949
