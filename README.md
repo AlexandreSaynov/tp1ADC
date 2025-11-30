@@ -77,6 +77,7 @@ tp1/
 
 ```bash
 pip install sqlalchemy
+pip install sphinx_rtd_theme
 ```
 
 ## Autores 
