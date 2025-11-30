@@ -27,3 +27,4 @@ documentation for details.
    register
    login
    events
+   edit_users
