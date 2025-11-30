@@ -1,0 +1,410 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>app.handlers.events &mdash; Macrohard Teams 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Macrohard Teams
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Main Functions</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../auth.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../menus.html">Menu System API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../permissions.html">Permissions Manager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../view_users.html">View Users Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../view_group.html">View Group Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roles.html">Roles Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../login.html">Login Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../events.html">Events Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../edit_users.html">User Editing Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chats.html">Chats Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../check_user.html">Check User Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../create_group.html">Create Group Handler</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Database Functions and Definition</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../schema.html">Database Schema Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../db_controller.html">Database Controller API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../init_db.html">Database Initializer</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Helper Functions</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../helper.html">Select all users helper</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Macrohard Teams</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">app.handlers.events</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for app.handlers.events</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.handlers._helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">helper_select_users</span>
+
+<div class="viewcode-block" id="handle_create_event">
+<a class="viewcode-back" href="../../../events.html#app.handlers.events.handle_create_event">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_create_event</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">logged_user</span><span class="p">,</span> <span class="n">permissions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a new event through console input.</span>
+
+<span class="sd">    This function guides the user through the process of creating a new event.  </span>
+<span class="sd">    It validates permissions, collects event details, parses the date/time,  </span>
+<span class="sd">    selects attendees, and finally delegates event creation to the database layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : DBController</span>
+<span class="sd">        The database controller responsible for event and user operations.</span>
+
+<span class="sd">    logged_user : User</span>
+<span class="sd">        The user currently logged in. Used for permission validation.</span>
+
+<span class="sd">    permissions : Permissions</span>
+<span class="sd">        Permission manager used to verify whether the user is allowed</span>
+<span class="sd">        to create events.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - If the user lacks the ``event.create`` permission, the function exits immediately.</span>
+<span class="sd">    - Event date/time must follow the format ``YYYY-MM-DD HH:MM``.</span>
+<span class="sd">    - Attendees are selected via :func:`helper_select_users`.</span>
+<span class="sd">    - If the date format is invalid, no event is created.</span>
+<span class="sd">    - Attendee selection may return an empty list, which is allowed.</span>
+<span class="sd">    - Actual creation occurs through :meth:`DBController.create_event`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">permissions</span><span class="o">.</span><span class="n">has_permission</span><span class="p">(</span><span class="n">logged_user</span><span class="p">,</span> <span class="s2">&quot;event.create&quot;</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You do not have permission to create events.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== Create New Event ===&quot;</span><span class="p">)</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Event name: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Description: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">date_str</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Event date (YYYY-MM-DD HH:MM): &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">event_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date_str</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ Invalid date format.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">attendee_ids</span> <span class="o">=</span> <span class="n">helper_select_users</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">allow_multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude_ids</span><span class="o">=</span><span class="nb">set</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="n">attendee_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">attendee_ids</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">ok</span><span class="p">,</span> <span class="n">event_or_msg</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create_event</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">event_date</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ Error creating event:&quot;</span><span class="p">,</span> <span class="n">event_or_msg</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">event</span> <span class="o">=</span> <span class="n">event_or_msg</span>
+
+    <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">attendee_ids</span><span class="p">:</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">add_user_to_event</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✔ Event &#39;</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">event_name</span><span class="si">}</span><span class="s2">&#39; created with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">attendee_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> attendees.&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="handle_edit_event">
+<a class="viewcode-back" href="../../../events.html#app.handlers.events.handle_edit_event">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_edit_event</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">event_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Display an interactive menu for editing an existing event.</span>
+
+<span class="sd">    This function loads the event by ID and presents several editing options:</span>
+<span class="sd">    updating the event name, description, date/time, attendee list, or deleting</span>
+<span class="sd">    the event entirely.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : DBController</span>
+<span class="sd">        Database controller used to access, update, and delete events.</span>
+
+<span class="sd">    event_id : int</span>
+<span class="sd">        The unique ID of the event to edit.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - If the event does not exist, the function terminates immediately.</span>
+<span class="sd">    - Date parsing requires the ``YYYY-MM-DD HH:MM`` format.</span>
+<span class="sd">    - Editing attendees uses :func:`helper_select_users`.</span>
+<span class="sd">    - Attendee updates are applied using :meth:`DBController.set_event_attendees`.</span>
+<span class="sd">    - Event deletion requires confirmation from the user.</span>
+<span class="sd">    - Updates are committed using :meth:`DBController.update_event`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">event</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_event_by_id</span><span class="p">(</span><span class="n">event_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Event not found.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== Edit Event: </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">event_name</span><span class="si">}</span><span class="s2"> ===&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[1] Change event name&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[2] Change description&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[3] Change event date/time&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[4] Edit attendees&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[5] Delete this event&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[9] Cancel&quot;</span><span class="p">)</span>
+
+    <span class="n">choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Choose option: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">updates</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span>
+        <span class="n">updates</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;New event name: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;2&quot;</span><span class="p">:</span>
+        <span class="n">updates</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;New description: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;3&quot;</span><span class="p">:</span>
+        <span class="n">date_str</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;New event date (YYYY-MM-DD HH:MM): &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">updates</span><span class="p">[</span><span class="s2">&quot;event_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date_str</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid date format.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+    <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;4&quot;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== Edit Attendees ===&quot;</span><span class="p">)</span>
+
+        <span class="n">new_ids</span> <span class="o">=</span> <span class="n">helper_select_users</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">allow_multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude_ids</span><span class="o">=</span><span class="nb">set</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">new_ids</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No attendees selected.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">ok</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">set_event_attendees</span><span class="p">(</span><span class="n">event_id</span><span class="p">,</span> <span class="n">new_ids</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span>
+
+
+    <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;5&quot;</span><span class="p">:</span>
+        <span class="n">confirm</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Are you sure you want to delete this event? (y/n): &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">confirm</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
+            <span class="n">ok</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">delete_event</span><span class="p">(</span><span class="n">event_id</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Delete canceled.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;9&quot;</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid option.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">updates</span><span class="p">:</span>
+        <span class="n">ok</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">update_event</span><span class="p">(</span><span class="n">event_id</span><span class="p">,</span> <span class="n">updates</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Event updated successfully.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Update failed: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="handle_view_my_events">
+<a class="viewcode-back" href="../../../events.html#app.handlers.events.handle_view_my_events">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_view_my_events</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">logged_user</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Display all events associated with the logged-in user.</span>
+
+<span class="sd">    This function shows a list of events the user is attending or owning,</span>
+<span class="sd">    along with attendee details. The user may optionally select an event to edit.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : DBController</span>
+<span class="sd">        Database controller used to retrieve events and attendees.</span>
+
+<span class="sd">    logged_user : User</span>
+<span class="sd">        The user whose events will be displayed.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - If the user has no events, a message is shown and the function exits.</span>
+<span class="sd">    - Each event lists its name, date, description, and attendee list.</span>
+<span class="sd">    - The user may enter an event ID to access :func:`handle_edit_event`.</span>
+<span class="sd">    - Only events belonging to the user can be edited.</span>
+<span class="sd">    - Invalid or non-numeric IDs are rejected.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== All Events ===&quot;</span><span class="p">)</span>
+
+    <span class="n">events</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_events_from_user</span><span class="p">(</span><span class="n">logged_user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">events</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No events exist.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">event_name</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">event_time</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Attendees:&quot;</span><span class="p">)</span>
+
+        <span class="n">attendees</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_attendees_from_event</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">attendees</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  (No attendees)&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">attendees</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">u</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">u</span><span class="o">.</span><span class="n">email</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+
+    <span class="n">choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Enter the ID of the event to edit, or press ENTER to go back: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">choice</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">event_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid ID.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">event_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">events</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You can only edit your own events.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">handle_edit_event</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">event_id</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="handle_view_all_events">
+<a class="viewcode-back" href="../../../events.html#app.handlers.events.handle_view_all_events">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_view_all_events</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">logged_user</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Display every event in the system.</span>
+
+<span class="sd">    This function lists all registered events, regardless of ownership,</span>
+<span class="sd">    and allows the user to select one for editing, assuming permissions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : DBController</span>
+<span class="sd">        The database controller responsible for fetching events and attendees.</span>
+
+<span class="sd">    logged_user : User</span>
+<span class="sd">        The user attempting to view or edit system-wide events.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - If no events exist, the function exits immediately.</span>
+<span class="sd">    - For each event, the list displays name, date/time, description, </span>
+<span class="sd">      and attendees.</span>
+<span class="sd">    - Selecting an event ID forwards the user to :func:`handle_edit_event`.</span>
+<span class="sd">    - Invalid IDs or those outside the available list are rejected.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== All Events ===&quot;</span><span class="p">)</span>
+
+    <span class="n">events</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_all_events</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">events</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No events exist.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">event_name</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">event_time</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Attendees:&quot;</span><span class="p">)</span>
+
+        <span class="n">attendees</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_attendees_from_event</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">attendees</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  (No attendees)&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">attendees</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">u</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">u</span><span class="o">.</span><span class="n">email</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+
+    <span class="n">choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Enter the ID of the event to edit, or press ENTER to go back: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">choice</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">event_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid ID.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">event_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">events</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You can only edit your own events.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">handle_edit_event</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">event_id</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Alexandre Saynov, Sergiy Iurchenko.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

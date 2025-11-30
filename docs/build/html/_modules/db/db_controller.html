@@ -1,0 +1,652 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>db.db_controller &mdash; Macrohard Teams 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Macrohard Teams
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../auth.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../menus.html">Menu System API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../permissions.html">Permissions Manager</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../schema.html">Database Schema Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../db_controller.html">Database Controller API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../init_db.html">Database Initializer</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../helper.html">Select all users helper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../view_users.html">View Users Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../view_group.html">View Group Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../roles.html">Roles Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../register.html">Register Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../login.html">Login Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../events.html">Events Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../edit_users.html">User Editing Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chats.html">Chats Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../check_user.html">Check User Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../create_group.html">Create Group Handler</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Macrohard Teams</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">db.db_controller</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for db.db_controller</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Database controller providing high-level CRUD operations for users, groups,</span>
+<span class="sd">and events. This module abstracts SQLAlchemy interactions and exposes a</span>
+<span class="sd">simple API for authentication systems, group management, and event handling.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.orm</span><span class="w"> </span><span class="kn">import</span> <span class="n">sessionmaker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_engine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span><span class="p">,</span> <span class="n">Group</span><span class="p">,</span> <span class="n">UsersInGroups</span><span class="p">,</span> <span class="n">Event</span><span class="p">,</span> <span class="n">UsersAttendingEvents</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.init_db</span><span class="w"> </span><span class="kn">import</span> <span class="n">DB_URL</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="n">DB_URL</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">Session</span> <span class="o">=</span> <span class="n">sessionmaker</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DBController">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DBController</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    High-level interface to the application&#39;s database, wrapping SQLAlchemy</span>
+<span class="sd">    models and sessions to perform user, group, and event operations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize a new SQLAlchemy session for database operations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">Session</span><span class="p">()</span>
+
+    <span class="c1"># -----------------------------</span>
+    <span class="c1"># USERS</span>
+    <span class="c1"># -----------------------------</span>
+
+<div class="viewcode-block" id="DBController.add_user">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.add_user">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">email</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">password_hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">access_level</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create and persist a new user.</span>
+
+<span class="sd">        :param str username: The desired username.</span>
+<span class="sd">        :param str email: User&#39;s email address.</span>
+<span class="sd">        :param str password_hash: Pre-hashed password.</span>
+<span class="sd">        :param str access_level: Permission role (default: ``&quot;user&quot;``).</span>
+<span class="sd">        :returns: ``(True, User)`` on success, otherwise ``(False, message)``.</span>
+<span class="sd">        :rtype: tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Username already exists.&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">email</span><span class="o">=</span><span class="n">email</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Email already exists.&quot;</span>
+
+        <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span>
+            <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span>
+            <span class="n">email</span><span class="o">=</span><span class="n">email</span><span class="p">,</span>
+            <span class="n">password_hash</span><span class="o">=</span><span class="n">password_hash</span><span class="p">,</span>
+            <span class="n">access_level</span><span class="o">=</span><span class="n">access_level</span><span class="p">,</span>
+            <span class="n">created_at</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">user</span></div>
+
+
+<div class="viewcode-block" id="DBController.get_user_by_username">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.get_user_by_username">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_user_by_username</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve a user by username.</span>
+
+<span class="sd">        :param str username: Username to query.</span>
+<span class="sd">        :returns: User object or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DBController.get_user_by_email">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.get_user_by_email">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_user_by_email</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">email</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve a user by email.</span>
+
+<span class="sd">        :param str email: Email address.</span>
+<span class="sd">        :returns: User object or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">email</span><span class="o">=</span><span class="n">email</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DBController.get_user_by_id">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.get_user_by_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_user_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve a user by database ID.</span>
+
+<span class="sd">        :param int user_id: User ID.</span>
+<span class="sd">        :returns: User object or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">user_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DBController.get_all_users">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.get_all_users">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_users</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all user entries.</span>
+
+<span class="sd">        :returns: List of all :class:`User` objects.</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+
+    
+<div class="viewcode-block" id="DBController.update_user">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.update_user">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">updates</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update fields of an existing user.</span>
+
+<span class="sd">        :param int user_id: User ID.</span>
+<span class="sd">        :param dict updates: Mapping of field names to new values.</span>
+<span class="sd">        :returns: ``(True, user)`` on success, otherwise ``(False, message)``.</span>
+<span class="sd">        :rtype: tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_by_id</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;User not found.&quot;</span>
+        
+        <span class="k">if</span> <span class="s2">&quot;username&quot;</span> <span class="ow">in</span> <span class="n">updates</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">updates</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Username already exists.&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;email&quot;</span> <span class="ow">in</span> <span class="n">updates</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">email</span><span class="o">=</span><span class="n">updates</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Email already exists.&quot;</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">updates</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Invalid field: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">user</span></div>
+
+
+    <span class="c1"># -----------------------------</span>
+    <span class="c1"># GROUPS</span>
+    <span class="c1"># -----------------------------</span>
+
+<div class="viewcode-block" id="DBController.get_group_by_id">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.get_group_by_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_group_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve a group by ID.</span>
+
+<span class="sd">        :param int group_id: Group identifier.</span>
+<span class="sd">        :returns: Group object or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Group</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">group_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DBController.get_all_groups">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.get_all_groups">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve all groups.</span>
+
+<span class="sd">        :returns: List of groups.</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Group</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DBController.create_group">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.create_group">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">owner_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new group.</span>
+
+<span class="sd">        :param str group_name: Name of the group.</span>
+<span class="sd">        :param int owner_id: Optional ID of the group&#39;s owner.</span>
+<span class="sd">        :returns: ``(True, Group)`` or ``(False, message)``.</span>
+<span class="sd">        :rtype: tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Group</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">group_name</span><span class="o">=</span><span class="n">group_name</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Group name already exists.&quot;</span>
+        
+        <span class="n">group</span> <span class="o">=</span> <span class="n">Group</span><span class="p">(</span>
+            <span class="n">group_name</span><span class="o">=</span><span class="n">group_name</span><span class="p">,</span>
+            <span class="n">owner_id</span><span class="o">=</span><span class="n">owner_id</span><span class="p">,</span>
+            <span class="n">created_at</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">group</span></div>
+
+
+<div class="viewcode-block" id="DBController.add_user_to_group">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.add_user_to_group">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_user_to_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a user to a group.</span>
+
+<span class="sd">        :param int user_id: User identifier.</span>
+<span class="sd">        :param int group_id: Group identifier.</span>
+<span class="sd">        :returns: ``(True, message)`` or ``(False, message)``.</span>
+<span class="sd">        :rtype: tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_by_id</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Group</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">group_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;User not found.&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">group</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Group not found.&quot;</span>
+
+        <span class="n">exists</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">UsersInGroups</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="n">group_id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">exists</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;User already in this group.&quot;</span>
+
+        <span class="n">link</span> <span class="o">=</span> <span class="n">UsersInGroups</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="n">group_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;User added to group.&quot;</span></div>
+
+
+<div class="viewcode-block" id="DBController.get_users_from_group">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.get_users_from_group">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_users_from_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve users that belong to a specific group.</span>
+
+<span class="sd">        :param int group_id: Group identifier.</span>
+<span class="sd">        :returns: List of users or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Group</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">group_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">group</span><span class="o">.</span><span class="n">users</span> <span class="k">if</span> <span class="n">group</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="DBController.get_groups_from_user">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.get_groups_from_user">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_groups_from_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve groups that a user belongs to.</span>
+
+<span class="sd">        :param int user_id: User identifier.</span>
+<span class="sd">        :returns: List of groups or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_by_id</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">groups</span> <span class="k">if</span> <span class="n">user</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+    
+<div class="viewcode-block" id="DBController.update_group_name">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.update_group_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_group_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rename a group.</span>
+
+<span class="sd">        :param int group_id: Group identifier.</span>
+<span class="sd">        :param str new_name: New group name.</span>
+<span class="sd">        :returns: ``(True, group)`` or ``(False, message)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_group_by_id</span><span class="p">(</span><span class="n">group_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">group</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Group not found.&quot;</span>
+
+        <span class="n">group</span><span class="o">.</span><span class="n">group_name</span> <span class="o">=</span> <span class="n">new_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">group</span></div>
+
+    
+<div class="viewcode-block" id="DBController.remove_user_from_group">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.remove_user_from_group">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_user_from_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">group_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove a user from a group.</span>
+
+<span class="sd">        :param int user_id: User identifier.</span>
+<span class="sd">        :param int group_id: Group identifier.</span>
+<span class="sd">        :returns: ``(True, message)`` or ``(False, message)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">link</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">UsersInGroups</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="n">group_id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">link</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;User is not in this group.&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;User removed from group.&quot;</span></div>
+
+
+<div class="viewcode-block" id="DBController.delete_group">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.delete_group">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete a group and its membership links.</span>
+
+<span class="sd">        :param int group_id: Group identifier.</span>
+<span class="sd">        :returns: ``(True, message)`` or ``(False, message)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Group</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">group_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">group</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Group not found.&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">UsersInGroups</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">group_id</span><span class="o">=</span><span class="n">group_id</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Group deleted successfully.&quot;</span></div>
+
+
+<div class="viewcode-block" id="DBController.get_groups_by_owner">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.get_groups_by_owner">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_groups_by_owner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve groups that belong to a specific owner.</span>
+
+<span class="sd">        :param int owner_id: Owner identifier.</span>
+<span class="sd">        :returns: List of groups.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Group</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">owner_id</span><span class="o">=</span><span class="n">owner_id</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DBController.get_groups_by_member">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.get_groups_by_member">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_groups_by_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve groups a user is a member of.</span>
+
+<span class="sd">        :param int user_id: User identifier.</span>
+<span class="sd">        :returns: List of groups.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Group</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">UsersInGroups</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">UsersInGroups</span><span class="o">.</span><span class="n">user_id</span> <span class="o">==</span> <span class="n">user_id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="p">)</span></div>
+
+
+    <span class="c1"># -----------------------------</span>
+    <span class="c1"># EVENTS</span>
+    <span class="c1"># -----------------------------</span>
+
+<div class="viewcode-block" id="DBController.create_event">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.create_event">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event_time</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new event.</span>
+
+<span class="sd">        :param str event_name: Title of the event.</span>
+<span class="sd">        :param str description: Event description.</span>
+<span class="sd">        :param datetime event_time: Scheduled time.</span>
+<span class="sd">        :returns: ``(True, Event)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span>
+            <span class="n">event_name</span><span class="o">=</span><span class="n">event_name</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+            <span class="n">event_time</span><span class="o">=</span><span class="n">event_time</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">event</span></div>
+
+
+<div class="viewcode-block" id="DBController.add_user_to_event">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.add_user_to_event">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_user_to_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">event_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a user as an event attendee.</span>
+
+<span class="sd">        :param int user_id: User identifier.</span>
+<span class="sd">        :param int event_id: Event identifier.</span>
+<span class="sd">        :returns: ``(True, message)`` or ``(False, message)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">exists</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">UsersAttendingEvents</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span> <span class="n">event_id</span><span class="o">=</span><span class="n">event_id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">exists</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;User already attending.&quot;</span>
+
+        <span class="n">link</span> <span class="o">=</span> <span class="n">UsersAttendingEvents</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span> <span class="n">event_id</span><span class="o">=</span><span class="n">event_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;User added to event.&quot;</span></div>
+
+
+<div class="viewcode-block" id="DBController.get_events_from_user">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.get_events_from_user">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_events_from_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve events associated with a user.</span>
+
+<span class="sd">        :param int user_id: User identifier.</span>
+<span class="sd">        :returns: List of events or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_by_id</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">events</span> <span class="k">if</span> <span class="n">user</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+    
+<div class="viewcode-block" id="DBController.get_all_events">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.get_all_events">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve all events.</span>
+
+<span class="sd">        :returns: List of events.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Event</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+
+    
+<div class="viewcode-block" id="DBController.update_event">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.update_event">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">updates</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update an event&#39;s fields.</span>
+
+<span class="sd">        :param int event_id: Event identifier.</span>
+<span class="sd">        :param dict updates: Field/value mappings.</span>
+<span class="sd">        :returns: ``(True, event)`` or ``(False, message)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Event</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">event_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Event not found.&quot;</span>
+        
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">updates</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Invalid field: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">event</span></div>
+
+    
+<div class="viewcode-block" id="DBController.get_event_by_id">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.get_event_by_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_event_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve an event by ID.</span>
+
+<span class="sd">        :param int event_id: Event identifier.</span>
+<span class="sd">        :returns: Event object or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Event</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">event_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span></div>
+
+    
+<div class="viewcode-block" id="DBController.get_attendees_from_event">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.get_attendees_from_event">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_attendees_from_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all users attending a specific event.</span>
+
+<span class="sd">        :param int event_id: Event identifier.</span>
+<span class="sd">        :returns: List of attendees or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_event_by_id</span><span class="p">(</span><span class="n">event_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">attendees</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">UsersAttendingEvents</span><span class="p">,</span> <span class="n">UsersAttendingEvents</span><span class="o">.</span><span class="n">user_id</span> <span class="o">==</span> <span class="n">User</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">UsersAttendingEvents</span><span class="o">.</span><span class="n">event_id</span> <span class="o">==</span> <span class="n">event_id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">attendees</span></div>
+
+    
+<div class="viewcode-block" id="DBController.set_event_attendees">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.set_event_attendees">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_event_attendees</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">new_attendee_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace all attendees of an event.</span>
+
+<span class="sd">        :param int event_id: Event identifier.</span>
+<span class="sd">        :param list[int] new_attendee_ids: User IDs to assign.</span>
+<span class="sd">        :returns: ``(True, message)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">UsersAttendingEvents</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">event_id</span><span class="o">=</span><span class="n">event_id</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">new_attendee_ids</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">UsersAttendingEvents</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">event_id</span><span class="o">=</span><span class="n">event_id</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Attendees updated successfully.&quot;</span></div>
+
+
+<div class="viewcode-block" id="DBController.delete_event">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.delete_event">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete an event.</span>
+
+<span class="sd">        :param int event_id: Event identifier.</span>
+<span class="sd">        :returns: ``(True, message)`` or ``(False, message)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_event_by_id</span><span class="p">(</span><span class="n">event_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Event not found.&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Event deleted.&quot;</span></div>
+
+
+<div class="viewcode-block" id="DBController.close">
+<a class="viewcode-back" href="../../db_controller.html#db.db_controller.DBController.close">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Close the active database session.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Alexandre Saynov, Sergiy Iurchenko.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,273 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>app.auth &mdash; Macrohard Teams 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Macrohard Teams
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../auth.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../menus.html">Menu System API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../permissions.html">Permissions Manager</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../schema.html">Database Schema Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../db_controller.html">Database Controller API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../init_db.html">Database Initializer</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../helper.html">Select all users helper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../view_users.html">View Users Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../view_group.html">View Group Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../roles.html">Roles Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../register.html">Register Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../login.html">Login Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../events.html">Events Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../edit_users.html">User Editing Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chats.html">Chats Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../check_user.html">Check User Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../create_group.html">Create Group Handler</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Macrohard Teams</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">app.auth</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for app.auth</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Authentication Service</span>
+<span class="sd">======================</span>
+
+<span class="sd">Provides simple authentication utilities including password hashing,</span>
+<span class="sd">user registration with automatic root assignment for the first user,</span>
+<span class="sd">and credential validation during login. Interaction with persistence is</span>
+<span class="sd">handled through a ``DBController`` instance passed into ``AuthService``.</span>
+
+<span class="sd">Main features:</span>
+<span class="sd">- Secure password hashing (SHA-256)</span>
+<span class="sd">- User registration with automatic &quot;root&quot; role for first user</span>
+<span class="sd">- Login validation against stored password hashes</span>
+<span class="sd">- Clean separation between authentication logic and storage backend</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">db.db_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">DBController</span>
+
+
+<div class="viewcode-block" id="hash_password">
+<a class="viewcode-back" href="../../auth.html#app.auth.hash_password">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hash_password</span><span class="p">(</span><span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute a SHA-256 hash of the given password.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    password : str</span>
+<span class="sd">        The plaintext password to hash.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Hex-encoded SHA-256 password hash.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">password</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="AuthService">
+<a class="viewcode-back" href="../../auth.html#app.auth.AuthService">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AuthService</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Authentication service providing user registration and login.</span>
+
+<span class="sd">    This class acts as a layer on top of :class:`DBController`, handling</span>
+<span class="sd">    password hashing and basic authentication flow (register, login,</span>
+<span class="sd">    close). It does not manage permissions or session state — only</span>
+<span class="sd">    identity validation and creation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_controller</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the authentication service.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        db_controller : DBController</span>
+<span class="sd">            Instance responsible for database operations such as</span>
+<span class="sd">            retrieving and persisting user records.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">db_controller</span>
+
+<div class="viewcode-block" id="AuthService.register_user">
+<a class="viewcode-back" href="../../auth.html#app.auth.AuthService.register_user">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">email</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">access_level</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Register a new user in the database.</span>
+
+<span class="sd">        If this is the first user in the system, they are automatically</span>
+<span class="sd">        assigned the ``root`` access level. Passwords are hashed using</span>
+<span class="sd">        :func:`hash_password`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        username : str</span>
+<span class="sd">            Desired username.</span>
+<span class="sd">        email : str</span>
+<span class="sd">            User email address.</span>
+<span class="sd">        password : str</span>
+<span class="sd">            Plaintext password, to be hashed before storage.</span>
+<span class="sd">        access_level : str, optional</span>
+<span class="sd">            Initial access level; defaults to ``&quot;user&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` if the user was registered successfully, otherwise</span>
+<span class="sd">            ``False``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_all_users</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">access_level</span> <span class="o">=</span> <span class="s2">&quot;root&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;⚠ Creating first user as ROOT&quot;</span><span class="p">)</span>
+
+        <span class="n">ok</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">add_user</span><span class="p">(</span>
+            <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span>
+            <span class="n">email</span><span class="o">=</span><span class="n">email</span><span class="p">,</span>
+            <span class="n">password_hash</span><span class="o">=</span><span class="n">hash_password</span><span class="p">(</span><span class="n">password</span><span class="p">),</span>
+            <span class="n">access_level</span><span class="o">=</span><span class="n">access_level</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;User &#39;</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">&#39; registered successfully.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="AuthService.login">
+<a class="viewcode-back" href="../../auth.html#app.auth.AuthService.login">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Authenticate a user by username and password.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        username : str</span>
+<span class="sd">            Username to authenticate.</span>
+<span class="sd">        password : str</span>
+<span class="sd">            Plaintext password to verify.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        object or None</span>
+<span class="sd">            The user object on successful login, or ``None`` on failure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_user_by_username</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;User not found.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">password_hash</span> <span class="o">!=</span> <span class="n">hash_password</span><span class="p">(</span><span class="n">password</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Incorrect password.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Welcome </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">! (</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">access_level</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">user</span></div>
+
+
+<div class="viewcode-block" id="AuthService.close">
+<a class="viewcode-back" href="../../auth.html#app.auth.AuthService.close">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Close the underlying database connection.</span>
+
+<span class="sd">        This method simply delegates to :meth:`DBController.close`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Alexandre Saynov, Sergiy Iurchenko.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

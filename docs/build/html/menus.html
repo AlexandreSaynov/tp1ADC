@@ -1,0 +1,253 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu System API Reference &mdash; Macrohard Teams 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Permissions Manager" href="permissions.html" />
+    <link rel="prev" title="Authentication" href="auth.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Macrohard Teams
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Main Functions</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="auth.html">Authentication</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Menu System API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#menu-system-and-dynamic-feature-loader">Menu System and Dynamic Feature Loader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.menus.build_dynamic_menu_from_features"><code class="docutils literal notranslate"><span class="pre">build_dynamic_menu_from_features()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.menus.build_submenu"><code class="docutils literal notranslate"><span class="pre">build_submenu()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.menus.call_handler"><code class="docutils literal notranslate"><span class="pre">call_handler()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.menus.menu_loop"><code class="docutils literal notranslate"><span class="pre">menu_loop()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#app.menus.print_menu"><code class="docutils literal notranslate"><span class="pre">print_menu()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="permissions.html">Permissions Manager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="view_users.html">View Users Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="view_group.html">View Group Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roles.html">Roles Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="login.html">Login Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="events.html">Events Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edit_users.html">User Editing Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chats.html">Chats Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="check_user.html">Check User Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="create_group.html">Create Group Handler</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Database Functions and Definition</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="schema.html">Database Schema Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="db_controller.html">Database Controller API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="init_db.html">Database Initializer</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Helper Functions</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="helper.html">Select all users helper</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Macrohard Teams</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Menu System API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/menus.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="menu-system-api-reference">
+<h1>Menu System API Reference<a class="headerlink" href="#menu-system-api-reference" title="Link to this heading"></a></h1>
+<section id="menu-system-and-dynamic-feature-loader">
+<span id="module-app.menus"></span><h2>Menu System and Dynamic Feature Loader<a class="headerlink" href="#menu-system-and-dynamic-feature-loader" title="Link to this heading"></a></h2>
+<p>This module implements a dynamic, permission-aware command-line menu
+system. Menus and submenus are built from configuration data (feature
+groups, permission maps), and visibility is controlled by user
+authentication and permission checks. Entries correspond to handler
+functions imported from various modules, and a flexible dispatcher
+(<cite>call_handler</cite>) automatically passes only the expected arguments.</p>
+<p>Main features:
+- Top-level and nested menus generated dynamically.
+- Menu entries filtered by user permissions.
+- Automatic handler invocation using function signature inspection.
+- Login/logout integration.
+- Configurable feature groups through JSON (<cite>vars.json</cite>).</p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="app.menus.build_dynamic_menu_from_features">
+<span class="sig-prename descclassname"><span class="pre">app.menus.</span></span><span class="sig-name descname"><span class="pre">build_dynamic_menu_from_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logged_user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permissions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/menus.html#build_dynamic_menu_from_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.menus.build_dynamic_menu_from_features" title="Link to this definition"></a></dt>
+<dd><p>Build the top-level menu based on configuration and the login state.</p>
+<p>This loads all feature groups from <code class="docutils literal notranslate"><span class="pre">IMPLEMENTED_FEATURES</span></code> and
+returns a list of menu entries. If no user is logged in, only
+<code class="docutils literal notranslate"><span class="pre">Login</span></code> and <code class="docutils literal notranslate"><span class="pre">Exit</span></code> options are shown.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>logged_user</strong> (<em>object</em><em> or </em><em>None</em>) – The current authenticated user.</p></li>
+<li><p><strong>permissions</strong> (<em>object</em>) – Permission manager that exposes <code class="docutils literal notranslate"><span class="pre">has_permission(user,</span> <span class="pre">perm)</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of tuples in the form <code class="docutils literal notranslate"><span class="pre">(function_name,</span> <span class="pre">label,</span> <span class="pre">permission)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[tuple]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.menus.build_submenu">
+<span class="sig-prename descclassname"><span class="pre">app.menus.</span></span><span class="sig-name descname"><span class="pre">build_submenu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logged_user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permissions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/menus.html#build_submenu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.menus.build_submenu" title="Link to this definition"></a></dt>
+<dd><p>Build a submenu for a given feature group, filtering entries
+according to user permissions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group</strong> (<em>str</em>) – Feature group name as defined in configuration.</p></li>
+<li><p><strong>logged_user</strong> (<em>object</em>) – The currently authenticated user.</p></li>
+<li><p><strong>permissions</strong> (<em>object</em>) – Permission manager used to verify access.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Submenu entries, each a tuple <code class="docutils literal notranslate"><span class="pre">(function_name,</span> <span class="pre">label,</span> <span class="pre">permission)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[tuple]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.menus.call_handler">
+<span class="sig-prename descclassname"><span class="pre">app.menus.</span></span><span class="sig-name descname"><span class="pre">call_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">possible_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/menus.html#call_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.menus.call_handler" title="Link to this definition"></a></dt>
+<dd><p>Call a handler function by passing only the parameters it accepts.</p>
+<p>Uses <code class="xref py py-mod docutils literal notranslate"><span class="pre">inspect</span></code> to match keyword arguments from <code class="docutils literal notranslate"><span class="pre">possible_args</span></code>
+to the function’s signature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>callable</em>) – The handler function to invoke.</p></li>
+<li><p><strong>**possible_args</strong> – All arguments that <em>might</em> be passed; only those matching the
+handler signature are forwarded.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whatever the handler function returns.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.menus.menu_loop">
+<span class="sig-prename descclassname"><span class="pre">app.menus.</span></span><span class="sig-name descname"><span class="pre">menu_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permissions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/menus.html#menu_loop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.menus.menu_loop" title="Link to this definition"></a></dt>
+<dd><p>Main interactive loop for the menu system.</p>
+<p>Displays the top-level menu, handles user input, navigates through
+submenus, and dispatches handler functions with appropriate
+arguments. Login/logout updates the session state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>auth</strong> (<em>object</em>) – Authentication module for login/logout.</p></li>
+<li><p><strong>db</strong> (<em>object</em>) – Database or persistence interface (passed to handlers as needed).</p></li>
+<li><p><strong>permissions</strong> (<em>object</em>) – Permission manager controlling user access.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.menus.print_menu">
+<span class="sig-prename descclassname"><span class="pre">app.menus.</span></span><span class="sig-name descname"><span class="pre">print_menu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">menu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MENU'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/app/menus.html#print_menu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.menus.print_menu" title="Link to this definition"></a></dt>
+<dd><p>Print a formatted menu to the console.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>menu</strong> (<em>list</em><em>[</em><em>tuple</em><em>]</em>) – A list of menu option tuples <code class="docutils literal notranslate"><span class="pre">(function,</span> <span class="pre">label,</span> <span class="pre">permission)</span></code>.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Text to display above the menu.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="auth.html" class="btn btn-neutral float-left" title="Authentication" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="permissions.html" class="btn btn-neutral float-right" title="Permissions Manager" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Alexandre Saynov, Sergiy Iurchenko.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

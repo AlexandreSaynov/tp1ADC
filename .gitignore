@@ -4,4 +4,4 @@ __pycache__/
 vars/dev/permissions.json
 app/__pycache__/*.pyc
 vars/dev/chats.xml
-docs/build/
+

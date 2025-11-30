@@ -1,0 +1,381 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>app.menus &mdash; Macrohard Teams 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Macrohard Teams
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Main Functions</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../auth.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../menus.html">Menu System API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../permissions.html">Permissions Manager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../view_users.html">View Users Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../view_group.html">View Group Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../roles.html">Roles Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../login.html">Login Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../events.html">Events Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../edit_users.html">User Editing Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chats.html">Chats Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../check_user.html">Check User Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../create_group.html">Create Group Handler</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Database Functions and Definition</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../schema.html">Database Schema Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../db_controller.html">Database Controller API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../init_db.html">Database Initializer</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Helper Functions</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../helper.html">Select all users helper</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Macrohard Teams</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">app.menus</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for app.menus</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Menu System and Dynamic Feature Loader</span>
+<span class="sd">======================================</span>
+
+<span class="sd">This module implements a dynamic, permission-aware command-line menu</span>
+<span class="sd">system. Menus and submenus are built from configuration data (feature</span>
+<span class="sd">groups, permission maps), and visibility is controlled by user</span>
+<span class="sd">authentication and permission checks. Entries correspond to handler</span>
+<span class="sd">functions imported from various modules, and a flexible dispatcher</span>
+<span class="sd">(`call_handler`) automatically passes only the expected arguments.</span>
+
+<span class="sd">Main features:</span>
+<span class="sd">- Top-level and nested menus generated dynamically.</span>
+<span class="sd">- Menu entries filtered by user permissions.</span>
+<span class="sd">- Automatic handler invocation using function signature inspection.</span>
+<span class="sd">- Login/logout integration.</span>
+<span class="sd">- Configurable feature groups through JSON (`vars.json`).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">perm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.handlers.chats</span><span class="w"> </span><span class="kn">import</span> <span class="n">chat_selection_loop</span><span class="p">,</span> <span class="n">handle_create_chat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.handlers.login</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_login</span><span class="p">,</span> <span class="n">handle_logout</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.handlers.register</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_register_user</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.handlers.view_users</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_view_all_users</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.handlers.create_group</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_create_group</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.handlers.view_group</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_view_all_groups</span><span class="p">,</span> <span class="n">handle_manage_my_groups</span><span class="p">,</span> <span class="n">handle_view_group</span><span class="p">,</span> <span class="n">handle_edit_group</span><span class="p">,</span> <span class="n">handle_manage_group_members</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.handlers.roles</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_create_role</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.handlers.events</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_create_event</span><span class="p">,</span> <span class="n">handle_view_my_events</span><span class="p">,</span> <span class="n">handle_view_all_events</span><span class="p">,</span> <span class="n">handle_edit_event</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.handlers.check_user</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_view_profile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+
+
+<span class="n">BASE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span> <span class="s2">&quot;vars/dev/vars.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+    <span class="n">config_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+<span class="n">ALL_PERMISSIONS</span> <span class="o">=</span> <span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;ALL_PERMISSIONS&quot;</span><span class="p">]</span>
+<span class="n">ROLES_JSON_FILE</span> <span class="o">=</span> <span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;ROLES_JSON_FILE&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="build_dynamic_menu_from_features">
+<a class="viewcode-back" href="../../menus.html#app.menus.build_dynamic_menu_from_features">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_dynamic_menu_from_features</span><span class="p">(</span><span class="n">logged_user</span><span class="p">,</span> <span class="n">permissions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build the top-level menu based on configuration and the login state.</span>
+
+<span class="sd">    This loads all feature groups from ``IMPLEMENTED_FEATURES`` and</span>
+<span class="sd">    returns a list of menu entries. If no user is logged in, only</span>
+<span class="sd">    ``Login`` and ``Exit`` options are shown.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    logged_user : object or None</span>
+<span class="sd">        The current authenticated user.</span>
+<span class="sd">    permissions : object</span>
+<span class="sd">        Permission manager that exposes ``has_permission(user, perm)``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[tuple]</span>
+<span class="sd">        List of tuples in the form ``(function_name, label, permission)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;./vars/dev/vars.json&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">config_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+    <span class="n">implemented_features</span> <span class="o">=</span> <span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;IMPLEMENTED_FEATURES&quot;</span><span class="p">]</span>
+
+    <span class="n">menu</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">add</span> <span class="o">=</span> <span class="n">menu</span><span class="o">.</span><span class="n">append</span>
+
+    <span class="k">if</span> <span class="n">logged_user</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">add</span><span class="p">((</span><span class="s2">&quot;handle_login&quot;</span><span class="p">,</span> <span class="s2">&quot;Login&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="n">add</span><span class="p">((</span><span class="s2">&quot;exit&quot;</span><span class="p">,</span> <span class="s2">&quot;Exit&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">menu</span>
+
+    <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">implemented_features</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">add</span><span class="p">((</span><span class="n">group</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+    <span class="n">add</span><span class="p">((</span><span class="s2">&quot;handle_logout&quot;</span><span class="p">,</span> <span class="s2">&quot;Logout&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+    <span class="n">add</span><span class="p">((</span><span class="s2">&quot;exit&quot;</span><span class="p">,</span> <span class="s2">&quot;Exit&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">menu</span></div>
+
+
+
+<div class="viewcode-block" id="build_submenu">
+<a class="viewcode-back" href="../../menus.html#app.menus.build_submenu">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_submenu</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">logged_user</span><span class="p">,</span> <span class="n">permissions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build a submenu for a given feature group, filtering entries</span>
+<span class="sd">    according to user permissions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    group : str</span>
+<span class="sd">        Feature group name as defined in configuration.</span>
+<span class="sd">    logged_user : object</span>
+<span class="sd">        The currently authenticated user.</span>
+<span class="sd">    permissions : object</span>
+<span class="sd">        Permission manager used to verify access.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[tuple]</span>
+<span class="sd">        Submenu entries, each a tuple ``(function_name, label, permission)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;./vars/dev/vars.json&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">config_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+    <span class="n">implemented_features</span> <span class="o">=</span> <span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;IMPLEMENTED_FEATURES&quot;</span><span class="p">]</span>
+    <span class="n">group_features</span> <span class="o">=</span> <span class="n">implemented_features</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="n">submenu</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">add</span> <span class="o">=</span> <span class="n">submenu</span><span class="o">.</span><span class="n">append</span>
+
+    <span class="k">for</span> <span class="n">function</span><span class="p">,</span> <span class="n">frontend_name</span> <span class="ow">in</span> <span class="n">group_features</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+        <span class="n">permission</span> <span class="o">=</span> <span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;PERMISSION_MAP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">permission</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">permissions</span><span class="o">.</span><span class="n">has_permission</span><span class="p">(</span><span class="n">logged_user</span><span class="p">,</span> <span class="n">permission</span><span class="p">):</span>
+            <span class="n">add</span><span class="p">((</span><span class="n">function</span><span class="p">,</span> <span class="n">frontend_name</span><span class="p">,</span> <span class="n">permission</span><span class="p">))</span>
+
+    <span class="n">add</span><span class="p">((</span><span class="s2">&quot;back&quot;</span><span class="p">,</span> <span class="s2">&quot;Back&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">submenu</span></div>
+
+
+
+<div class="viewcode-block" id="print_menu">
+<a class="viewcode-back" href="../../menus.html#app.menus.print_menu">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_menu</span><span class="p">(</span><span class="n">menu</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;MENU&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print a formatted menu to the console.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    menu : list[tuple]</span>
+<span class="sd">        A list of menu option tuples ``(function, label, permission)``.</span>
+<span class="sd">    title : str, optional</span>
+<span class="sd">        Text to display above the menu.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;============== </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2"> ==============&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">menu</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;==================================</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="menu_loop">
+<a class="viewcode-back" href="../../menus.html#app.menus.menu_loop">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">menu_loop</span><span class="p">(</span><span class="n">auth</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">permissions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main interactive loop for the menu system.</span>
+
+<span class="sd">    Displays the top-level menu, handles user input, navigates through</span>
+<span class="sd">    submenus, and dispatches handler functions with appropriate</span>
+<span class="sd">    arguments. Login/logout updates the session state.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    auth : object</span>
+<span class="sd">        Authentication module for login/logout.</span>
+<span class="sd">    db : object</span>
+<span class="sd">        Database or persistence interface (passed to handlers as needed).</span>
+<span class="sd">    permissions : object</span>
+<span class="sd">        Permission manager controlling user access.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logged_user</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;cls&quot;</span><span class="p">)</span>
+        <span class="n">menu</span> <span class="o">=</span> <span class="n">build_dynamic_menu_from_features</span><span class="p">(</span><span class="n">logged_user</span><span class="p">,</span> <span class="n">permissions</span><span class="p">)</span>
+        <span class="n">print_menu</span><span class="p">(</span><span class="n">menu</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;MAIN MENU&quot;</span><span class="p">)</span>
+
+        <span class="n">choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Choose a category: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">choice_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">choice_idx</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">choice_idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">menu</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid option.&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">selected_function</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">menu</span><span class="p">[</span><span class="n">choice_idx</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">selected_function</span> <span class="o">==</span> <span class="s2">&quot;handle_login&quot;</span><span class="p">:</span>
+            <span class="n">logged_user</span> <span class="o">=</span> <span class="n">handle_login</span><span class="p">(</span><span class="n">auth</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">elif</span> <span class="n">selected_function</span> <span class="o">==</span> <span class="s2">&quot;handle_logout&quot;</span><span class="p">:</span>
+            <span class="n">logged_user</span> <span class="o">=</span> <span class="n">handle_logout</span><span class="p">()</span>
+            <span class="k">continue</span>
+        <span class="k">elif</span> <span class="n">selected_function</span> <span class="o">==</span> <span class="s2">&quot;exit&quot;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exiting...&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">selected_function</span> <span class="ow">in</span> <span class="n">config_data</span><span class="p">[</span><span class="s2">&quot;IMPLEMENTED_FEATURES&quot;</span><span class="p">]:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">submenu</span> <span class="o">=</span> <span class="n">build_submenu</span><span class="p">(</span><span class="n">selected_function</span><span class="p">,</span> <span class="n">logged_user</span><span class="p">,</span> <span class="n">permissions</span><span class="p">)</span>
+                <span class="n">print_menu</span><span class="p">(</span><span class="n">submenu</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> MENU&quot;</span><span class="p">)</span>
+
+                <span class="n">sub_choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Choose an option: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">sub_choice_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sub_choice</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">sub_choice_idx</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">sub_choice_idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">submenu</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid option.&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="n">sub_function</span><span class="p">,</span> <span class="n">sub_label</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">submenu</span><span class="p">[</span><span class="n">sub_choice_idx</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">sub_function</span> <span class="o">==</span> <span class="s2">&quot;back&quot;</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="k">elif</span> <span class="n">sub_function</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
+                    <span class="n">call_handler</span><span class="p">(</span>
+                        <span class="nb">globals</span><span class="p">()[</span><span class="n">sub_function</span><span class="p">],</span>
+                        <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">,</span>
+                        <span class="n">logged_user</span><span class="o">=</span><span class="n">logged_user</span><span class="p">,</span>
+                        <span class="n">permissions</span><span class="o">=</span><span class="n">permissions</span><span class="p">,</span>
+                        <span class="n">auth</span><span class="o">=</span><span class="n">auth</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Function &#39;</span><span class="si">{</span><span class="n">sub_function</span><span class="si">}</span><span class="s2">&#39; is not implemented.&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="call_handler">
+<a class="viewcode-back" href="../../menus.html#app.menus.call_handler">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">call_handler</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">**</span><span class="n">possible_args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Call a handler function by passing only the parameters it accepts.</span>
+
+<span class="sd">    Uses :mod:`inspect` to match keyword arguments from ``possible_args``</span>
+<span class="sd">    to the function’s signature.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    func : callable</span>
+<span class="sd">        The handler function to invoke.</span>
+<span class="sd">    **possible_args</span>
+<span class="sd">        All arguments that *might* be passed; only those matching the</span>
+<span class="sd">        handler signature are forwarded.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Any</span>
+<span class="sd">        Whatever the handler function returns.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="n">accepted</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">possible_args</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">sig</span><span class="o">.</span><span class="n">parameters</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">**</span><span class="n">accepted</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Alexandre Saynov, Sergiy Iurchenko.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

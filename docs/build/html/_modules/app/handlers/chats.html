@@ -1,0 +1,892 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>app.handlers.chats &mdash; Macrohard Teams 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Macrohard Teams
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Main Functions</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../auth.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../menus.html">Menu System API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../permissions.html">Permissions Manager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../view_users.html">View Users Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../view_group.html">View Group Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roles.html">Roles Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../login.html">Login Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../events.html">Events Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../edit_users.html">User Editing Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../chats.html">Chats Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../check_user.html">Check User Handler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../create_group.html">Create Group Handler</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Database Functions and Definition</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../schema.html">Database Schema Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../db_controller.html">Database Controller API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../init_db.html">Database Initializer</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Helper Functions</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../helper.html">Select all users helper</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Macrohard Teams</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">app.handlers.chats</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for app.handlers.chats</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xml.etree.ElementTree</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ET</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">app.handlers._helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">helper_select_users</span>
+
+<span class="n">CHATS_FILE</span> <span class="o">=</span> <span class="s2">&quot;./vars/dev/chats.xml&quot;</span>
+<span class="n">RELOAD_INTERVAL</span> <span class="o">=</span> <span class="mf">0.5</span>  <span class="c1"># seconds</span>
+
+<div class="viewcode-block" id="handle_create_chat">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.handle_create_chat">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_create_chat</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">logged_user</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a new chat and store it in the chats XML file.</span>
+
+<span class="sd">    Prompts the user for a chat name and participant selection, then</span>
+<span class="sd">    creates the chat via :func:`create_chat_in_xml`. The logged user is</span>
+<span class="sd">    always included as a participant.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    db : Database</span>
+<span class="sd">        Database interface used to fetch user information.</span>
+<span class="sd">    logged_user : User</span>
+<span class="sd">        The user creating the chat.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - Empty chat names are rejected.</span>
+<span class="sd">    - Participant selection uses :func:`helper_select_users`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== Create New Chat ===&quot;</span><span class="p">)</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Chat name: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Chat name cannot be empty.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Select participants:&quot;</span><span class="p">)</span>
+    <span class="n">participant_ids</span> <span class="o">=</span> <span class="n">helper_select_users</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">allow_multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude_ids</span><span class="o">=</span><span class="p">{</span><span class="n">logged_user</span><span class="o">.</span><span class="n">id</span><span class="p">})</span>
+
+    <span class="n">participants</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">participant_ids</span><span class="p">:</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_user_by_id</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
+            <span class="n">participants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+
+    <span class="n">create_chat_in_xml</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">participants</span><span class="p">,</span> <span class="n">logged_user</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Chat &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; created successfully!&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_chat_in_xml">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.create_chat_in_xml">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_chat_in_xml</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">participants</span><span class="p">,</span> <span class="n">owner_username</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a chat entry inside the XML chats file.</span>
+
+<span class="sd">    Generates a new chat ID, assigns the owner, adds participants, and</span>
+<span class="sd">    records the initial timestamp. Creates the XML structure if missing.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the chat.</span>
+<span class="sd">    participants : list[str]</span>
+<span class="sd">        List of usernames participating in the chat.</span>
+<span class="sd">    owner_username : str</span>
+<span class="sd">        Username of the chat owner.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The owner is always added as a participant if not already included.</span>
+<span class="sd">    - The XML file is created if it does not exist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">)</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">ET</span><span class="o">.</span><span class="n">ParseError</span><span class="p">:</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;chats&quot;</span><span class="p">)</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;chats&quot;</span><span class="p">)</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+
+    <span class="n">existing_ids</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">chat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;chat_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span> 
+        <span class="k">for</span> <span class="n">chat</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;chat&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">next_id</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">existing_ids</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">chat_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;chat_</span><span class="si">{</span><span class="n">next_id</span><span class="si">:</span><span class="s2">03</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">chat_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;chat&quot;</span><span class="p">)</span>
+    <span class="n">chat_elem</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">chat_id</span><span class="p">)</span>
+    <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">chat_elem</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">chat_elem</span><span class="p">,</span> <span class="s2">&quot;owner&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">owner_username</span>
+
+    <span class="k">if</span> <span class="n">owner_username</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">participants</span><span class="p">:</span>
+        <span class="n">participants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">owner_username</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">participants</span><span class="p">:</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">chat_elem</span><span class="p">,</span> <span class="s2">&quot;participant&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">p</span>
+
+    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+    <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">chat_elem</span><span class="p">,</span> <span class="s2">&quot;latest_timestamp&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">now</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">indent</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">level</span><span class="o">*</span><span class="s2">&quot;  &quot;</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elem</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                    <span class="n">elem</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="s2">&quot;  &quot;</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">elem</span><span class="p">:</span>
+                    <span class="n">indent</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">level</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                    <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">level</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
+                    <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="n">indent</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">())</span>
+
+    <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+    
+
+
+<div class="viewcode-block" id="write_xml">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.write_xml">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_xml</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">file_path</span><span class="o">=</span><span class="n">CHATS_FILE</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write an XML tree to file with indentation.</span>
+
+<span class="sd">    Supports both Python &lt;3.9 (manual indentation) and Python ≥3.9</span>
+<span class="sd">    using :func:`xml.etree.ElementTree.indent`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tree : ElementTree</span>
+<span class="sd">        Parsed XML tree to write.</span>
+<span class="sd">    file_path : str, optional</span>
+<span class="sd">        Destination path for the XML file. Defaults to ``CHATS_FILE``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Grava o XML com indentação, compatível com Python &lt;3.9 e &gt;=3.9&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Python 3.9+</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">indent</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">level</span><span class="o">*</span><span class="s2">&quot;  &quot;</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elem</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                    <span class="n">elem</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="s2">&quot;  &quot;</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">elem</span><span class="p">:</span>
+                    <span class="n">indent</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">level</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                    <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">level</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
+                    <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="n">indent</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">())</span>
+
+    <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="load_user_chats">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.load_user_chats">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_user_chats</span><span class="p">(</span><span class="n">logged_user</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load all chats the logged user participates in.</span>
+
+<span class="sd">    Reads the chats XML file and collects chat metadata for any chat</span>
+<span class="sd">    where the user&#39;s username appears in the participant list.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    logged_user : User</span>
+<span class="sd">        The current authenticated user.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[dict]</span>
+<span class="sd">        List of chat dictionaries containing ``id``, ``name``,</span>
+<span class="sd">        ``participants``, and ``owner`` keys.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">)</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+    <span class="n">user_chats</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">chat</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;chat&quot;</span><span class="p">):</span>
+        <span class="n">participants</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">chat</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;participant&quot;</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">logged_user</span><span class="o">.</span><span class="n">username</span> <span class="ow">in</span> <span class="n">participants</span><span class="p">:</span>
+            <span class="n">chat_id</span> <span class="o">=</span> <span class="n">chat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+            <span class="n">chat_name</span> <span class="o">=</span> <span class="n">chat</span><span class="o">.</span><span class="n">findtext</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Chat </span><span class="si">{</span><span class="n">chat_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">owner</span> <span class="o">=</span> <span class="n">chat</span><span class="o">.</span><span class="n">findtext</span><span class="p">(</span><span class="s2">&quot;owner&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            
+            <span class="n">user_chats</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">chat_id</span><span class="p">,</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">chat_name</span><span class="p">,</span>
+                <span class="s2">&quot;participants&quot;</span><span class="p">:</span> <span class="n">participants</span><span class="p">,</span>
+                <span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="n">owner</span>
+            <span class="p">})</span>
+    
+    <span class="k">return</span> <span class="n">user_chats</span></div>
+
+
+<div class="viewcode-block" id="display_chat_menu">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.display_chat_menu">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">display_chat_menu</span><span class="p">(</span><span class="n">chats</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Display a paginated list of available chats.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    chats : list[dict]</span>
+<span class="sd">        List of chat metadata dictionaries.</span>
+<span class="sd">    page : int, optional</span>
+<span class="sd">        Current page index. Defaults to 0.</span>
+<span class="sd">    page_size : int, optional</span>
+<span class="sd">        Number of chats shown per page. Defaults to 5.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        A tuple ``(page, total_pages)`` after rendering the menu.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">total_pages</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chats</span><span class="p">)</span> <span class="o">+</span> <span class="n">page_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">page_size</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">page</span> <span class="o">*</span> <span class="n">page_size</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">page_size</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;AVAILABLE CHATS&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">chat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chats</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">],</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">chat</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chat</span><span class="p">[</span><span class="s1">&#39;participants&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Page </span><span class="si">{</span><span class="n">page</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total_pages</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">page</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&#39;P&#39; - Previous Page&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">page</span> <span class="o">&lt;</span> <span class="n">total_pages</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&#39;N&#39; - Next Page&quot;</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&#39;Q&#39; - Exit to Main Menu&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">page</span><span class="p">,</span> <span class="n">total_pages</span></div>
+
+
+<div class="viewcode-block" id="chat_selection_loop">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.chat_selection_loop">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">chat_selection_loop</span><span class="p">(</span><span class="n">logged_user</span><span class="p">,</span> <span class="n">db</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main loop allowing a user to browse and select chats.</span>
+
+<span class="sd">    Enables pagination, chat entry, and—if the user is the owner—</span>
+<span class="sd">    access to chat management options.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    logged_user : User</span>
+<span class="sd">        The active user.</span>
+<span class="sd">    db : Database</span>
+<span class="sd">        Database interface used when modifying chats.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">chats</span> <span class="o">=</span> <span class="n">load_user_chats</span><span class="p">(</span><span class="n">logged_user</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">chats</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">No chats available.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+    
+    <span class="n">page</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">page_size</span> <span class="o">=</span> <span class="mi">5</span>
+    
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">page</span><span class="p">,</span> <span class="n">total_pages</span> <span class="o">=</span> <span class="n">display_chat_menu</span><span class="p">(</span><span class="n">chats</span><span class="p">,</span> <span class="n">page</span><span class="p">)</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">page</span> <span class="o">*</span> <span class="n">page_size</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">page_size</span>
+        
+        <span class="n">choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Select chat (1-5) or command (P/N/Q): &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;Q&#39;</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;N&#39;</span> <span class="ow">and</span> <span class="n">page</span> <span class="o">&lt;</span> <span class="n">total_pages</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">page</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;P&#39;</span> <span class="ow">and</span> <span class="n">page</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">page</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">choice</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">chats</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]):</span>
+                <span class="n">selected_chat</span> <span class="o">=</span> <span class="n">chats</span><span class="p">[</span><span class="n">start</span> <span class="o">+</span> <span class="n">idx</span><span class="p">]</span>
+                
+                <span class="k">if</span> <span class="n">logged_user</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">selected_chat</span><span class="p">[</span><span class="s2">&quot;owner&quot;</span><span class="p">]:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">You are the owner of &#39;</span><span class="si">{</span><span class="n">selected_chat</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1. Enter chat&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;2. Manage chat&quot;</span><span class="p">)</span>
+                    <span class="n">sub_choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Choose option: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">sub_choice</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span><span class="p">:</span>
+                        <span class="n">manage_chat</span><span class="p">(</span><span class="n">logged_user</span><span class="p">,</span> <span class="n">selected_chat</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
+                        <span class="n">chats</span> <span class="o">=</span> <span class="n">load_user_chats</span><span class="p">(</span><span class="n">logged_user</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                <span class="n">chat_viewer</span><span class="p">(</span><span class="n">logged_user</span><span class="p">,</span> <span class="n">selected_chat</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_chat_messages">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.load_chat_messages">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_chat_messages</span><span class="p">(</span><span class="n">chat_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load all messages for a given chat.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    chat_id : str</span>
+<span class="sd">        Identifier of the chat to load messages from.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        ``(messages, latest_timestamp)`` where ``messages`` is a list of</span>
+<span class="sd">        message dictionaries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[],</span> <span class="kc">None</span>
+    
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">)</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+    
+    <span class="k">for</span> <span class="n">chat</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;chat&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">chat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">chat_id</span><span class="p">:</span>
+            <span class="n">messages</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">chat</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">):</span>
+                <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s2">&quot;sender&quot;</span><span class="p">:</span> <span class="n">msg</span><span class="o">.</span><span class="n">findtext</span><span class="p">(</span><span class="s2">&quot;sender&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">msg</span><span class="o">.</span><span class="n">findtext</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">msg</span><span class="o">.</span><span class="n">findtext</span><span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">)</span>
+                <span class="p">})</span>
+            
+            <span class="n">latest_timestamp</span> <span class="o">=</span> <span class="n">chat</span><span class="o">.</span><span class="n">findtext</span><span class="p">(</span><span class="s2">&quot;latest_timestamp&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">messages</span><span class="p">,</span> <span class="n">latest_timestamp</span>
+    
+    <span class="k">return</span> <span class="p">[],</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="display_chat">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.display_chat">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">display_chat</span><span class="p">(</span><span class="n">chat_info</span><span class="p">,</span> <span class="n">messages</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Render a chat and its messages to the console.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    chat_info : dict</span>
+<span class="sd">        Chat metadata including name and participants.</span>
+<span class="sd">    messages : list[dict]</span>
+<span class="sd">        List of message dictionaries to display.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CHAT: </span><span class="si">{</span><span class="n">chat_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">50</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">messages</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No messages yet.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">msg</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">msg</span><span class="p">[</span><span class="s1">&#39;sender&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">msg</span><span class="p">[</span><span class="s1">&#39;content&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Type &#39;M&#39; to send a message, &#39;Q&#39; to quit chat.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_message_to_chat">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.add_message_to_chat">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_message_to_chat</span><span class="p">(</span><span class="n">logged_user</span><span class="p">,</span> <span class="n">chat_id</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Append a new message to a chat.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    logged_user : User</span>
+<span class="sd">        User sending the message.</span>
+<span class="sd">    chat_id : str</span>
+<span class="sd">        Chat identifier.</span>
+<span class="sd">    content : str</span>
+<span class="sd">        Message content.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if the message was added, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">)</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+    
+    <span class="k">for</span> <span class="n">chat</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;chat&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">chat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">chat_id</span><span class="p">:</span>
+            <span class="n">new_msg</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">chat</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">)</span>
+            <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">new_msg</span><span class="p">,</span> <span class="s2">&quot;sender&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">logged_user</span><span class="o">.</span><span class="n">username</span>
+            <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">new_msg</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">content</span>
+            <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+            <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">new_msg</span><span class="p">,</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">timestamp</span>
+            
+            <span class="n">latest</span> <span class="o">=</span> <span class="n">chat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;latest_timestamp&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">latest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">latest</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">timestamp</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">chat</span><span class="p">,</span> <span class="s2">&quot;latest_timestamp&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">timestamp</span>
+            
+            <span class="n">ET</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="chat_viewer">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.chat_viewer">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">chat_viewer</span><span class="p">(</span><span class="n">logged_user</span><span class="p">,</span> <span class="n">chat_info</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interactive chat viewer with live message reloading.</span>
+
+<span class="sd">    Runs a loop that refreshes chat messages on a timer while a</span>
+<span class="sd">    background thread collects user input for sending messages or</span>
+<span class="sd">    quitting.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    logged_user : User</span>
+<span class="sd">        User viewing the chat.</span>
+<span class="sd">    chat_info : dict</span>
+<span class="sd">        Metadata for the selected chat.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">last_timestamp</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">user_choice</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">user_message</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">input_event</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_user_input</span><span class="p">():</span>
+        <span class="k">nonlocal</span> <span class="n">user_choice</span><span class="p">,</span> <span class="n">user_message</span>
+        <span class="n">choice</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="n">choice</span> <span class="o">!=</span> <span class="s1">&#39;Q&#39;</span><span class="p">:</span>
+            <span class="n">choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;M&#39;</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter message: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="n">user_message</span> <span class="o">=</span> <span class="n">message</span>
+                <span class="n">add_message_to_chat</span><span class="p">(</span><span class="n">logged_user</span><span class="p">,</span> <span class="n">chat_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">user_message</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Message sent.&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;Q&#39;</span><span class="p">:</span>
+                <span class="n">user_choice</span> <span class="o">=</span> <span class="s1">&#39;Q&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid option. Type &#39;M&#39; to send a message or &#39;Q&#39; to quit.&quot;</span><span class="p">)</span>
+            <span class="n">input_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+    
+    <span class="n">input_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">get_user_input</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">input_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    
+    <span class="k">while</span> <span class="n">user_choice</span> <span class="o">!=</span> <span class="s1">&#39;Q&#39;</span><span class="p">:</span>
+        <span class="n">messages</span><span class="p">,</span> <span class="n">latest_timestamp</span> <span class="o">=</span> <span class="n">load_chat_messages</span><span class="p">(</span><span class="n">chat_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+        
+        <span class="k">if</span> <span class="n">latest_timestamp</span> <span class="o">!=</span> <span class="n">last_timestamp</span><span class="p">:</span>
+            <span class="n">display_chat</span><span class="p">(</span><span class="n">chat_info</span><span class="p">,</span> <span class="n">messages</span><span class="p">)</span>
+            <span class="n">last_timestamp</span> <span class="o">=</span> <span class="n">latest_timestamp</span>
+        
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">RELOAD_INTERVAL</span><span class="p">)</span>
+    <span class="n">input_thread</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="chat_loop">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.chat_loop">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">chat_loop</span><span class="p">(</span><span class="n">logged_user</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Entry point for the chat menu system.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    logged_user : User</span>
+<span class="sd">        The active user.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">chat_selection_loop</span><span class="p">(</span><span class="n">logged_user</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="manage_chat">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.manage_chat">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">manage_chat</span><span class="p">(</span><span class="n">logged_user</span><span class="p">,</span> <span class="n">chat_info</span><span class="p">,</span> <span class="n">db</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manage chat settings and participants.</span>
+
+<span class="sd">    Only the chat owner may rename, modify membership, or delete the chat.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    logged_user : User</span>
+<span class="sd">        The user performing the action.</span>
+<span class="sd">    chat_info : dict</span>
+<span class="sd">        Chat metadata structure.</span>
+<span class="sd">    db : Database</span>
+<span class="sd">        Database interface used for user lookup.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">logged_user</span><span class="o">.</span><span class="n">username</span> <span class="o">!=</span> <span class="n">chat_info</span><span class="p">[</span><span class="s2">&quot;owner&quot;</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Only the chat owner can manage this chat.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MANAGE CHAT: </span><span class="si">{</span><span class="n">chat_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1. Edit chat name&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;2. Edit members&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;3. Delete chat&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Q. Quit to previous menu&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+        
+        <span class="n">choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Select option: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span><span class="p">:</span>
+            <span class="n">new_name</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter new chat name: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">new_name</span><span class="p">:</span>
+                <span class="n">edit_chat_name</span><span class="p">(</span><span class="n">chat_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">new_name</span><span class="p">)</span>
+                <span class="n">chat_info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_name</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Chat name updated.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Chat name cannot be empty.&quot;</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span><span class="p">:</span>
+            <span class="n">edit_chat_members</span><span class="p">(</span><span class="n">chat_info</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">logged_user</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+            <span class="n">confirm</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Are you sure you want to delete this chat? (Y/N): &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">confirm</span> <span class="o">==</span> <span class="s1">&#39;Y&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">delete_chat</span><span class="p">(</span><span class="n">chat_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Chat deleted.&quot;</span><span class="p">)</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error deleting chat.&quot;</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;Q&#39;</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid option.&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="delete_chat">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.delete_chat">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_chat</span><span class="p">(</span><span class="n">chat_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Delete a chat from the XML file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    chat_id : str</span>
+<span class="sd">        Chat identifier.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if deleted, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">)</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+    <span class="n">chat_to_delete</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">for</span> <span class="n">chat</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;chat&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">chat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">chat_id</span><span class="p">:</span>
+            <span class="n">chat_to_delete</span> <span class="o">=</span> <span class="n">chat</span>
+            <span class="k">break</span>
+    
+    <span class="k">if</span> <span class="n">chat_to_delete</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">chat_to_delete</span><span class="p">)</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="edit_chat_name">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.edit_chat_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">edit_chat_name</span><span class="p">(</span><span class="n">chat_id</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the name of a chat.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    chat_id : str</span>
+<span class="sd">        Chat identifier.</span>
+<span class="sd">    new_name : str</span>
+<span class="sd">        New chat name.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if updated successfully, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">)</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+    
+    <span class="k">for</span> <span class="n">chat</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;chat&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">chat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">chat_id</span><span class="p">:</span>
+            <span class="n">chat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">new_name</span>
+            <span class="n">ET</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="edit_chat_members">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.edit_chat_members">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">edit_chat_members</span><span class="p">(</span><span class="n">chat_info</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">logged_user</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manage participants of a chat.</span>
+
+<span class="sd">    Allows adding and removing participants, excluding the owner from</span>
+<span class="sd">    removal.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    chat_info : dict</span>
+<span class="sd">        Chat metadata including participants.</span>
+<span class="sd">    db : Database</span>
+<span class="sd">        Database interface for user lookups.</span>
+<span class="sd">    logged_user : User</span>
+<span class="sd">        User managing the chat.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Current participants:&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chat_info</span><span class="p">[</span><span class="s2">&quot;participants&quot;</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1. Add participant&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;2. Remove participant&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Q. Quit&quot;</span><span class="p">)</span>
+        
+        <span class="n">choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Select option: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span><span class="p">:</span>
+            <span class="n">new_ids</span> <span class="o">=</span> <span class="n">helper_select_users</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">allow_multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude_ids</span><span class="o">=</span><span class="nb">set</span><span class="p">(</span><span class="n">chat_info</span><span class="p">[</span><span class="s2">&quot;participants&quot;</span><span class="p">]))</span>
+            <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">new_ids</span><span class="p">:</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_user_by_id</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
+                    <span class="n">chat_info</span><span class="p">[</span><span class="s2">&quot;participants&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+                    <span class="n">add_participant_to_chat</span><span class="p">(</span><span class="n">chat_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Participants added.&quot;</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span><span class="p">:</span>
+            <span class="n">removable</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">chat_info</span><span class="p">[</span><span class="s2">&quot;participants&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="n">logged_user</span><span class="o">.</span><span class="n">username</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">removable</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No participants can be removed.&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Removable participants:&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">removable</span><span class="p">))</span>
+            <span class="n">remove_name</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter participant username to remove: &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">remove_name</span> <span class="ow">in</span> <span class="n">removable</span><span class="p">:</span>
+                <span class="n">chat_info</span><span class="p">[</span><span class="s2">&quot;participants&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">remove_name</span><span class="p">)</span>
+                <span class="n">remove_participant_from_chat</span><span class="p">(</span><span class="n">chat_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">remove_name</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">remove_name</span><span class="si">}</span><span class="s2"> removed.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid username.&quot;</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s1">&#39;Q&#39;</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid option.&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_participant_to_chat">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.add_participant_to_chat">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_participant_to_chat</span><span class="p">(</span><span class="n">chat_id</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a participant to a chat.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    chat_id : str</span>
+<span class="sd">        Chat identifier.</span>
+<span class="sd">    username : str</span>
+<span class="sd">        Username to add.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if the participant was added, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">)</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+    
+    <span class="k">for</span> <span class="n">chat</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;chat&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">chat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">chat_id</span><span class="p">:</span>
+            <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">chat</span><span class="p">,</span> <span class="s2">&quot;participant&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">username</span>
+            <span class="n">ET</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="remove_participant_from_chat">
+<a class="viewcode-back" href="../../../chats.html#app.handlers.chats.remove_participant_from_chat">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">remove_participant_from_chat</span><span class="p">(</span><span class="n">chat_id</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove a participant from a chat.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    chat_id : str</span>
+<span class="sd">        Chat identifier.</span>
+<span class="sd">    username : str</span>
+<span class="sd">        Username to remove.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if removed successfully, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">)</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+    
+    <span class="k">for</span> <span class="n">chat</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;chat&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">chat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">chat_id</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">chat</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;participant&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">text</span> <span class="o">==</span> <span class="n">username</span><span class="p">:</span>
+                    <span class="n">chat</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                    <span class="n">ET</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">CHATS_FILE</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Alexandre Saynov, Sergiy Iurchenko.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
