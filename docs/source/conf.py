@@ -19,7 +19,8 @@ sys.path.insert(0, '../')
 
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',  # se quiser suportar docstrings Google/NumPy style
+    'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode'  # se quiser suportar docstrings Google/NumPy style
 ]
 
 templates_path = ['_templates']
@@ -30,5 +31,17 @@ autodoc_mock_imports = ["sqlalchemy"]
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'alabaster'
+html_theme = 'furo'
+
+html_theme_options = {
+    "light_css_variables": {
+        "color-brand-primary": "#3a7bd5",
+        "color-brand-content": "#3a7bd5",
+    },
+    "dark_css_variables": {
+        "color-brand-primary": "#6ca0ff",
+        "color-brand-content": "#6ca0ff",
+    }
+}
+
 html_static_path = ['_static']
