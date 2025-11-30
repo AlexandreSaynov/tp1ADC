@@ -20,3 +20,4 @@ documentation for details.
    permissions
    schema
    db_controller
+   view_users
