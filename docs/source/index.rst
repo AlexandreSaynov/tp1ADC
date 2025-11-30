@@ -4,20 +4,37 @@
 Macrohard Teams Documentation
 =============================
 
-Add your content using ``reStructuredText`` syntax.  
-See the `reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_ documentation for details.
-
+Documentation for the Macrohard Teams application, covering its main functionalities, database operations, and various helper and handler functions.
 
 Main Functions
 ==============
 
 .. toctree::
    :maxdepth: 2
-   :caption: Main Functions
 
    auth
    menus
    permissions
+
+
+Database Functions and Definition
+=================================
+
+.. toctree::
+   :maxdepth: 2
+
+   schema
+   db_controller
+   init_db
+
+
+Helper and Handlers Functions
+================
+
+.. toctree::
+   :maxdepth: 2
+
+   helper
    view_users
    view_group
    roles
@@ -28,25 +45,3 @@ Main Functions
    chats
    check_user
    create_group
-
-
-Database Functions and Definition
-=================================
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Database Functions and Definition
-
-   schema
-   db_controller
-   init_db
-
-
-Helper Functions
-================
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Helper Functions
-
-   helper
