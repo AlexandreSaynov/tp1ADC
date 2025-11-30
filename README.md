@@ -10,7 +10,19 @@ tp1/
 ├─ app/
 │  ├─ auth.py           # Autenticação e registo de utilizadores
 │  ├─ menus.py          # Menus dinâmicos e handlers de ações
-│  └─ permissions.py    # Gestão de roles e permissões
+│  ├─ permissions.py    # Gestão de roles e permissões
+│  └─ handlers/
+│     ├─ chats.py         # Handler dos chats
+│     ├─ check_user.py    # Handler para demonstrar informação sobre o utilizador
+│     ├─ create_group.py  # Handler para criar grupos
+│     ├─ edit_users.py    # Handler para editar utilizadores
+│     ├─ events.py        # Handler para ações acerca de eventos
+│     ├─ login.py         # Handler para tratar dos logins.
+│     ├─ register.py      # Handler para registar um novo utilizador.
+│     ├─ roles.py         # Handler para criar roles novas.
+│     ├─ view_group.py    # Handler para ver grupos.
+│     ├─ view_users.py    # Handler para ver utilizadores.
+│     └─ _helper.py       # Helper para selecionar utilizadores.
 │
 ├─ db/
 │  ├─ db_controller.py  # Controller central para DB
@@ -65,6 +77,7 @@ tp1/
 
 ```bash
 pip install sqlalchemy
+pip install sphinx_rtd_theme
 ```
 
 ## Autores 
