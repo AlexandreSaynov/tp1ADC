@@ -30,3 +30,4 @@ documentation for details.
    edit_users
    chats
    check_user
+   create_group
