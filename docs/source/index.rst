@@ -26,5 +26,6 @@ documentation for details.
    roles
    register
    login
+   events
    edit_users
    chats

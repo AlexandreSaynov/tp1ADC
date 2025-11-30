@@ -1,6 +1,6 @@
-Login Handler
+Events Handler
 ==============
-.. automodule:: app.handlers.login
+.. automodule:: app.handlers.events
    :members:
    :show-inheritance:
    :undoc-members:
