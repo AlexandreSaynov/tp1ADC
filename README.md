@@ -29,12 +29,14 @@ tp1/
 │  ├─ init_db.py        # Inicialização e seed do DB
 │  └─ schema.py         # Modelos SQLAlchemy
 │
+├─ docs/build/ # Diretoria da documentação do projeto, criada em Sphinx.
 ├─ vars/dev/
 │  ├─ permissions.json  # Roles e permissões
 │  └─ vars.json         # Configurações gerais e DB URL
 │
 ├─ main_app.py          # Entry point principal
 └─ README.md
+
 ```
     
 
