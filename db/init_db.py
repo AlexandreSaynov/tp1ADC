@@ -1,3 +1,31 @@
+"""
+Database Initialization and Utilities Module.
+
+This module provides functionality to initialize the database, 
+seed it with sample data, and perform basic utility operations 
+like password hashing.
+
+Modules
+-------
+- sqlalchemy: ORM for database interactions.
+- datetime: Date and time handling.
+- hashlib: Password hashing using SHA-256.
+- json, os: Configuration file loading and path handling.
+
+Functions
+---------
+- hash_password(password: str) -> str
+    Hashes a password using SHA-256.
+- init_db(seed: bool = True)
+    Initializes the database and optionally seeds it with initial data.
+
+Notes
+-----
+- Configuration data is read from "vars/dev/vars.json".
+- The database URL must be defined under the "DB_URL" key.
+- This module can be run as a script to initialize the database directly.
+"""
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -12,10 +40,44 @@ DB_URL = config_data["DB_URL"]
 
 
 def hash_password(password: str) -> str:
+    """
+    Hash a password using SHA-256.
+
+    Parameters
+    ----------
+    password : str
+        The plain-text password to hash.
+
+    Returns
+    -------
+    str
+        The hexadecimal SHA-256 hash of the password.
+
+    Notes
+    -----
+    - No salting is applied; this is a simple SHA-256 hash.
+    """
     return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
 
 def init_db(seed: bool = True):
+    """
+    Initialize the database and optionally seed it with sample data.
+
+    Parameters
+    ----------
+    seed : bool, optional
+        Whether to populate the database with sample users and events 
+        (default is True).
+
+    Notes
+    -----
+    - Creates all tables defined in the SQLAlchemy Base metadata.
+    - Seeds with a root user and a sample event if the database is empty.
+    - If the database already contains users, seeding is skipped.
+    - Commits changes to the database and closes the session.
+    - Can be executed directly via `python <this_module>.py`.
+    """
     engine = create_engine(DB_URL, echo=True)
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)

@@ -28,3 +28,4 @@ documentation for details.
    login
    events
    edit_users
+   init_db
