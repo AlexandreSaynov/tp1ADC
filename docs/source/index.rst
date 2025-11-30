@@ -29,3 +29,4 @@ documentation for details.
    events
    edit_users
    chats
+   check_user
