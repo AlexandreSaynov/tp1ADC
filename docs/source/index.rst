@@ -23,3 +23,4 @@ documentation for details.
    view_users
    view_group
    roles
+   register
