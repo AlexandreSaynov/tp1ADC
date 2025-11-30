@@ -22,3 +22,4 @@ documentation for details.
    db_controller
    view_users
    view_group
+   roles
